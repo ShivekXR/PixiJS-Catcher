@@ -1,0 +1,34 @@
+{
+    "compilerOptions": {
+        // Compiler
+        "module": "ESNext",
+        "target": "ES6",
+        "sourceMap": true,
+        
+        // Code check
+        "strict": true,
+        "noFallthroughCasesInSwitch": true,
+        "noImplicitAny": true,
+        "noImplicitOverride": true,
+        "noImplicitReturns": true,
+        "noUnusedLocals": true,
+        "noUnusedParameters": true,
+        
+        // Module resolving
+        "allowSyntheticDefaultImports": true,
+        "esModuleInterop": true,
+        "moduleResolution": "bundler",
+        "resolveJsonModule": true,
+        
+        // Paths
+        "baseUrl": ".",
+        "paths": {
+            "@resources/*": [
+                "resources/*"
+            ],
+            "@scripts/*": [
+                "scripts/*"
+            ],
+        }
+    }
+}

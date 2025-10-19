@@ -1,0 +1,24 @@
+{
+    "scripts": {
+        "start": "webpack serve --mode=development",
+        "build": "webpack --mode=production",
+        "build-analyze": "webpack --mode=production --env analyze"
+    },
+    "engines": {
+        "npm": "=8.11.0",
+        "node": "=16.16.0"
+    },
+    "dependencies": {
+        "pixi.js": "^7.4.0"
+    },
+    "devDependencies": {
+        "html-webpack-plugin": "^5.5.0",
+        "ts-loader": "^9.5.4",
+        "tsconfig-paths-webpack-plugin": "^4.2.0",
+        "typescript": "^5.9.3",
+        "webpack": "^5.102.1",
+        "webpack-bundle-analyzer": "^4.10.2",
+        "webpack-cli": "^5.1.4",
+        "webpack-dev-server": "^4.15.1"
+    }
+}
