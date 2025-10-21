@@ -23,12 +23,9 @@
         // Paths
         "baseUrl": ".",
         "paths": {
-            "@resources/*": [
-                "resources/*"
-            ],
             "@scripts/*": [
-                "scripts/*"
+                "scripts/*",
             ],
-        }
+        },
     }
 }

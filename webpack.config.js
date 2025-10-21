@@ -1,11 +1,12 @@
 const BundleAnalyzerPlugin = require("webpack-bundle-analyzer").BundleAnalyzerPlugin
+const CopyPlugin = require("copy-webpack-plugin")
 const HtmlWebpackPlugin = require("html-webpack-plugin")
 const Path = require("path")
 const TsconfigPathsPlugin = require("tsconfig-paths-webpack-plugin")
 
 module.exports = (env, argv) => {
     return ({
-        entry: Path.resolve(__dirname, "scripts/index.ts"),
+        entry: Path.resolve(__dirname, "scripts/main.ts"),
 
         // Resolving imports in scripts
         resolve: {
@@ -28,11 +29,6 @@ module.exports = (env, argv) => {
                     include: [Path.resolve(__dirname, "scripts")],
                     loader: "ts-loader",
                 },
-                {
-                    test: /\.(png|svg|jpg|jpeg)/,
-                    include: [Path.resolve(__dirname, "resources")],
-                    type: "asset/resource",
-                },
             ],
         },
 
@@ -44,6 +40,14 @@ module.exports = (env, argv) => {
                 minify: true,
             }),
 
+            // Copy asset bundles 
+            new CopyPlugin({
+                patterns: [{
+                    from: Path.resolve(__dirname, "assets"),
+                    to: Path.resolve(__dirname, "_compiled/assets"),
+                }],
+            }),
+
             // Bundle graph
             env.analyze ? new BundleAnalyzerPlugin() : undefined,
         ],
@@ -51,8 +55,7 @@ module.exports = (env, argv) => {
         output: {
             clean: true,
             path: Path.resolve(__dirname, "_compiled"),
-            filename: "main_[contenthash:8].js",
-            assetModuleFilename: "assets/[name]_[contenthash:8][ext][query]",
+            filename: "main.js",
         },
 
         // No matter what, the bundled script will be big - so disable the annoying tips.

@@ -1,1 +1,3 @@
 - pixijs_catcher.svg by Shivek; based on "free to use" PixiJS logo: https://pixijs.com/8.x/branding
+- "4 Directional character" by Warren Clark; "feel free to use": https://lionheart963.itch.io/4-directional-character
+- "Pixel Food" by Henry Software; MIT License; https://henrysoftware.itch.io/pixel-food

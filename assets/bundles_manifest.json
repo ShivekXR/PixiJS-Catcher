@@ -1,0 +1,22 @@
+{
+    "bundles": [
+        {
+            "name": "food_levels",
+            "assets": [
+                {
+                    "name": "food_sheet",
+                    "srcs": "./assets/food_sheet.json"
+                }
+            ]
+        },
+        {
+            "name": "character",
+            "assets": [
+                {
+                    "name": "knight_sheet",
+                    "srcs": "./assets/knight_sheet.json"
+                }
+            ]
+        }
+    ]
+}
