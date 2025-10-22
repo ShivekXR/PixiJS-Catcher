@@ -1,10 +1,10 @@
-import ComponentSystem from "ComponentSystem"
 import {AnimatedSprite, FrameObject, Resource, Texture} from "pixi.js"
+import EmptyRenderer from "EmptyRenderer"
 
-class AnimatedSpriteRenderer extends ComponentSystem {
+class AnimatedSpriteRenderer extends EmptyRenderer {
     // @ts-ignore
-    private _sprite: AnimatedSprite
-    public get sprite(): AnimatedSprite {
+    protected _sprite: AnimatedSprite
+    public override get sprite(): AnimatedSprite {
         return this._sprite
     }
 
