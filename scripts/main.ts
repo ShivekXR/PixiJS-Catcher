@@ -1,4 +1,7 @@
-import { AnimatedSprite, Application, Assets, BaseTexture, SCALE_MODES, Sprite, Spritesheet } from "pixi.js"
+import { Application, Assets, BaseTexture, SCALE_MODES, Spritesheet } from "pixi.js"
+import GameObject from "GameObject"
+import SpriteRenderer from "SpriteRenderer"
+import AnimatedSpriteRenderer from "AnimatedSpriteRenderer"
 
 BaseTexture.defaultOptions.scaleMode = SCALE_MODES.NEAREST
 
@@ -19,19 +22,24 @@ async function main() {
 
     const foodAssets: Record<string, any> = await Assets.loadBundle("food_levels")
     const foodSheet: Spritesheet = foodAssets["food_sheet"]
-    const food: Sprite = new Sprite(foodSheet.textures["food_0"])
-    food.name = "item"
-    application.stage.addChild(food)
+
+    const foodGO: GameObject = new GameObject("Food")
+    const spriteRenderer: SpriteRenderer = foodGO.AddComponentSystem(SpriteRenderer)
+    spriteRenderer.SetTexture(foodSheet.textures["food_12"])
+    application.stage.addChild(spriteRenderer.sprite)
+    foodGO.active = true
 
     const characterAssets: Record<string, any> = await Assets.loadBundle("character")
     const knightSheet: Spritesheet = characterAssets["knight_sheet"]
-    const knight: AnimatedSprite = new AnimatedSprite(knightSheet.animations["run_right"])
-    knight.name = "player"
-    knight.position.x = 100
-    knight.position.y = 100
-    knight.animationSpeed = 0.15
-    knight.play()
-    application.stage.addChild(knight)
+
+    const knightGO: GameObject = new GameObject("Player")
+    const animatedSpriteRenderer = knightGO.AddComponentSystem(AnimatedSpriteRenderer)
+    animatedSpriteRenderer.SetTextures(knightSheet.animations["idle"])
+    animatedSpriteRenderer.sprite.position.x = 100
+    animatedSpriteRenderer.sprite.position.y = 100
+    animatedSpriteRenderer.sprite.animationSpeed = 0.15
+    animatedSpriteRenderer.sprite.play()
+    application.stage.addChild(animatedSpriteRenderer.sprite)
 }
 
 main()

@@ -6,7 +6,7 @@ const TsconfigPathsPlugin = require("tsconfig-paths-webpack-plugin")
 
 module.exports = (env, argv) => {
     return ({
-        entry: Path.resolve(__dirname, "scripts/main.ts"),
+        entry: Path.resolve(__dirname, "scripts/Main.ts"),
 
         // Resolving imports in scripts
         resolve: {
