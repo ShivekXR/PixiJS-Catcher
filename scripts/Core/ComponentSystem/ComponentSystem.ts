@@ -13,9 +13,9 @@ abstract class ComponentSystem<Data = void> {
         this._gameObject = owner
     }
 
-    private _eventTarget: EventTarget = new EventTarget()
-    public get eventTarget(): EventTarget {
-        return this._eventTarget
+    private _events: EventTarget = new EventTarget()
+    public get events(): EventTarget {
+        return this._events
     }
 
     private _started: boolean = false

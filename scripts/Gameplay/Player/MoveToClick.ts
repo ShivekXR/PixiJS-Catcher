@@ -3,10 +3,19 @@ import Game from "Game"
 import GlobalInput from "GlobalInput"
 import { ObservablePoint, Ticker } from "pixi.js"
 
+export enum MoveState {
+    Idle,
+    Left,
+    Right
+}
+
 class MoveToClick extends ComponentSystem {
-    private position: ObservablePoint = this.gameObject.container.position
-    private targetPositionX: number = this.position.x
-    private speed: number = 0.15
+    public static readonly EVENT_MOVE_CHANGE: string = "move_change"
+    private static readonly MOVEMENT_STOP_PRECISION: number = 1
+    private static readonly SPEED: number = 0.5
+    private moveState: MoveState | undefined
+    private position: ObservablePoint
+    private targetPositionX: number
     private ticker: Ticker = Ticker.shared
 
     private OnClick: EventListener = (event: CustomEventInit) => {
@@ -14,19 +23,43 @@ class MoveToClick extends ComponentSystem {
     }
 
     public override Start(): void {
+        this.position = this.gameObject.container.position
+        this.targetPositionX = this.position.x
         Game.globalInput.events.addEventListener(GlobalInput.ON_CLICK, this.OnClick)
     }
 
-    public override Update(): void {
-        const vectorToTarget = this.targetPositionX - this.position.x
-        const distance = Math.abs(vectorToTarget)
+    private TryChangeState(newState: MoveState) {
+        if (this.moveState != newState) {
+            this.moveState = newState
+            this.events.dispatchEvent(new CustomEvent(
+                MoveToClick.EVENT_MOVE_CHANGE,
+                { detail: this.moveState }
+            ))
+        }
+    }
 
-        if( distance < 5 ) {
-            return;
+    public override Update(): void {
+        const vectorToTarget: number = this.targetPositionX - this.position.x
+        const distance: number = Math.abs(vectorToTarget)
+
+        if (distance < MoveToClick.MOVEMENT_STOP_PRECISION) {
+            // No reason to move
+            this.TryChangeState(MoveState.Idle)
+            return
         }
 
-        const vectorSign = Math.sign(vectorToTarget)
-        this.position.x += vectorSign * this.speed * this.ticker.deltaMS
+        const vectorSign: number = Math.sign(vectorToTarget)
+        const midPoint: number = this.position.x + vectorSign * MoveToClick.SPEED * this.ticker.deltaMS
+
+        if (vectorSign > 0) {
+            // Check for overshoot
+            this.position.x = Math.min(this.targetPositionX, midPoint)
+            this.TryChangeState(MoveState.Right)
+        } else {
+            // Check for overshoot
+            this.position.x = Math.max(this.targetPositionX, midPoint)
+            this.TryChangeState(MoveState.Left)
+        }
     }
 
     public override OnDestroy(): void {

@@ -6,7 +6,6 @@ import { Container } from "pixi.js"
 class GameObject {
     private _componentSystems: Map<string, ComponentSystem> = new Map<keyof ComponentSystem, ComponentSystem>()
 
-    // @ts-ignore
     private _containerComponentSystem: ContainerComponentSystem<Container, ContainerData>
     public get container(): Container {
         return this._containerComponentSystem.container

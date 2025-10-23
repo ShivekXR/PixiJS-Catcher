@@ -1,26 +1,19 @@
 import AnimatedSpriteContainer from "AnimatedSpriteContainer"
-import AssetsBundleConstants from "AssetsBundleConstants"
-import AssetsBundleManager from "AssetsBundleManager"
 import Animator from "Animator"
 import GameObject from "GameObject"
-import { Spritesheet } from "pixi.js"
 import MoveToClick from "Player/MoveToClick"
+import KnightAnimations from "Player/KnightAnimations"
+import KnightController from "Player/KnightController"
 
 class Player {
-    public static SpawnPawn(): GameObject {
-        const knightSheet: Spritesheet = AssetsBundleManager.TryGetBundledAsset(
-            AssetsBundleConstants.CHARACTER_BUNDLE,
-            AssetsBundleConstants.KNIGHT_SHEET
-        )
+    public static SpawnPlayer(): GameObject {
         const player: GameObject = new GameObject("Player")
-        player.AddComponentSystem(AnimatedSpriteContainer, { position: { x: 250, y: 100 } })
-        player.AddComponentSystem(Animator, {
-            textures: knightSheet.animations["run_right"],
-            speed: 0.15,
-        })
+        player.AddComponentSystem(AnimatedSpriteContainer)
+        player.AddComponentSystem(Animator)
+        player.AddComponentSystem(KnightController)
+        player.AddComponentSystem(KnightAnimations)
         player.AddComponentSystem(MoveToClick)
         player.active = true
-
         return player
     }
 }

@@ -11,6 +11,7 @@
         "pixi.js": "^7.4.0"
     },
     "devDependencies": {
+        "@pixi/math-extras": "^7.4.3",
         "copy-webpack-plugin": "^11.0.0",
         "html-webpack-plugin": "^5.5.0",
         "ts-loader": "^9.5.4",
