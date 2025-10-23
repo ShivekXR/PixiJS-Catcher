@@ -5,7 +5,7 @@ import MoveToClick from "Player/MoveToClick"
 import KnightAnimations from "Player/KnightAnimations"
 import KnightController from "Player/KnightController"
 
-class Player {
+class PlayerPawn {
     public static SpawnPlayer(): GameObject {
         const player: GameObject = new GameObject("Player")
         player.AddComponentSystem(AnimatedSpriteContainer)
@@ -18,4 +18,4 @@ class Player {
     }
 }
 
-export default Player
+export default PlayerPawn

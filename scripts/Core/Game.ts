@@ -1,10 +1,12 @@
 import { Application, BaseTexture, Container, Rectangle, SCALE_MODES } from "pixi.js"
 import GlobalInput from "GlobalInput"
-import Player from "Gameplay/Player/Player"
+import Player from "Gameplay/Player/PlayerPawn"
 import GameObject from "GameObject"
 import ItemManager from "Item/ItemManager"
 
 class Game {
+    private static readonly START_LIVES: number = 10
+
     private static _application: Application
 
     private static _playerObject: GameObject
@@ -35,7 +37,7 @@ class Game {
             view: view,
             width: 640,
             height: 640,
-            backgroundColor: 0xFFAAFF,
+            backgroundColor: 0x00AAFF,
         })
 
         // @ts-expect-error
@@ -46,22 +48,35 @@ class Game {
         console.log("+1")
     }
 
-    private static OnItemBreak: EventListener = () => {
-        console.log("-1")
+    private static lives: number
+    private static AddLives(amount: number) {
+        console.log(this.lives)
+        this.lives += amount
+        if (this.lives < 0) {
+            this.End()
+        }
     }
+
+    private static OnItemBreak: EventListener = () => {
+        this.AddLives(-1)
+    }
+
+    private static items: GameObject
 
     public static Start() {
         this._playerObject = Player.SpawnPlayer()
-    
-        const items: GameObject = new GameObject("Item Manager")
-        const itemManager: ItemManager = items.AddComponentSystem(ItemManager)
+
+        this.lives = this.START_LIVES
+
+        this.items = new GameObject("Item Manager")
+        const itemManager: ItemManager = this.items.AddComponentSystem(ItemManager)
         itemManager.events.addEventListener(ItemManager.EVENT_ITEM_COLLECTED, this.OnItemCollected)
         itemManager.events.addEventListener(ItemManager.EVENT_ITEM_DROPPED, this.OnItemBreak)
-        items.active = true
+        this.items.active = true
     }
 
     public static End() {
-        
+        this.items.active = false
     }
 }
 

@@ -28,6 +28,10 @@ class GameObject {
     public set active(value: boolean) {
         this._active = value
 
+        if(this._active == false) {
+            return
+        }
+
         for (let componentSystem of this._componentSystems) {
             componentSystem[1]._Start()
         }
