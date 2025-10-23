@@ -3,6 +3,12 @@ import GameObjectBox from "GameObjectBox"
 import ContainerComponentSystem, { ContainerData } from "ContainerComponentSystem"
 import { Container } from "pixi.js"
 
+// The main dish in the project
+// GameObject class holds and update ComponentSystems
+// It accepts generic component systems
+
+// It nicely decoupled some elements and made code reusable, great
+
 class GameObject {
     private _componentSystems: Map<string, ComponentSystem> = new Map<keyof ComponentSystem, ComponentSystem>()
 
@@ -64,6 +70,7 @@ class GameObject {
         return componentSystem as CS
     }
 
+    // TODO: Find a clever solution to get component systems by their base class
     public GetComponentSystem<CS extends ComponentSystem>(
         ComponentSystemClass:
             { new(owner: GameObject): CS } |
@@ -76,6 +83,8 @@ class GameObject {
         return componentSystem
     }
 
+    // There is a must to copy components beforehand traversing through them
+    // In case a component would be removed or added in the middle of the operation
     private GetAllComponentSystemsCopy(): ComponentSystem[] {
         return [...this._componentSystems.values()]
     }

@@ -8,6 +8,8 @@ export interface AnimationData {
     speed: number
 }
 
+// This class makes using animations easier
+
 class Animator extends ComponentSystem {
     private animatedSprite: AnimatedSprite
     private animations: Map<string, AnimationData> = new Map<string, AnimationData>()

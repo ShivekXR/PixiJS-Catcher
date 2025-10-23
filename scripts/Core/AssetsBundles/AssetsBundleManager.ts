@@ -1,3 +1,8 @@
+// A starting point for creating management for assets in the project.
+// It lacks of background loading and unloading assets
+// which would be ideal for memory management in the future
+// and generally for the scene/level management
+
 import AssetsBundleConstants from "AssetsBundleConstants"
 import { Assets } from "pixi.js"
 

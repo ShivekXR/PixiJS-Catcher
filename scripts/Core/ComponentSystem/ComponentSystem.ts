@@ -1,8 +1,15 @@
 import GameObject from "GameObject"
 
+// A minimal component-system class for an object.
+
+// TODO: Make OnEnable, OnDisable, and more virtual/abstract methods
+
 // TODO: Make component system optionally unique
 // GameObject should not have multiple transforms or renderers
 
+// ComponentSystems can have additional data provided to consturctors
+// The generic Data is obviusly for type checks, inheritance,
+// and GameObject Add/Get ComponentSystem methods
 abstract class ComponentSystem<Data = void> {
     private _gameObject: GameObject
     public get gameObject(): GameObject {
@@ -13,6 +20,7 @@ abstract class ComponentSystem<Data = void> {
         this._gameObject = owner
     }
 
+    // Events can be a great solution for class decoupling
     private _events: EventTarget = new EventTarget()
     public get events(): EventTarget {
         return this._events

@@ -3,6 +3,9 @@ import GameObject from "Core/ComponentSystem/GameObject"
 import { Container, IPointData } from "pixi.js"
 import Game from "Game"
 
+// Keep this interface minimal but useful for a simple
+// creation of Container based Component Systems
+// e.g. gameObject.AddComponent(ContainerBased, { parent:, position:})
 export interface ContainerData {
     parent?: Container
     position?: IPointData
@@ -11,6 +14,9 @@ export interface ContainerData {
     pivot?: IPointData
 }
 
+// A special class related to the main ComponentSystem class
+// The reason for this class is that the Pixi Container actually holds
+// information for the transform which we want to use for our GameObjects
 class ContainerComponentSystem<Base extends Container, Data extends ContainerData> extends ComponentSystem<Data> {
     protected _container: Base
     public get container(): Base {
@@ -18,6 +24,7 @@ class ContainerComponentSystem<Base extends Container, Data extends ContainerDat
     }
 
     public override OnDestroy(): void {
+        // Release the container, bye bye
         this.container.destroy()
     }
 
@@ -27,6 +34,7 @@ class ContainerComponentSystem<Base extends Container, Data extends ContainerDat
         this.container.name = owner.name
         this.container.setParent(data?.parent ?? Game.root)
 
+        // Some default values just in case
         this.container.position = data?.position ?? { x: 0, y: 0 }
         this.container.scale = data?.scale  ?? { x: 1, y: 1 }
         this.container.rotation = data?.rotation ?? 0

@@ -4,6 +4,15 @@ import Player from "Gameplay/Player/PlayerPawn"
 import GameObject from "GameObject"
 import ItemManager from "Item/ItemManager"
 
+// This needs some more work, unfortunately the time is over
+// However I am happy with the current results, especially
+// gameobject + component system combo
+
+// TODO: Rename this class for something related to application management
+// TODO: Add score manager, not sure if it should be in the Player systems
+// TODO: Add lives manager, not sure if it should be in the Player systems
+// TODO: Add Game State manager
+
 class Game {
     private static readonly START_LIVES: number = 10
 
@@ -45,6 +54,7 @@ class Game {
     }
 
     private static OnItemCollected: EventListener = () => {
+        // Placeholder for the scoring system
         console.log("+1")
     }
 

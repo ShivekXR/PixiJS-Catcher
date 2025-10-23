@@ -16,6 +16,8 @@ class AnimatedSpriteRenderer extends ContainerComponentSystem<AnimatedSprite, An
     constructor(owner: GameObject, data?: AnimatedSpriteData) {
         super(
             owner,
+            // If the texture data is empty, create a placeholder but
+            // the GameObject is satisfied having a transform
             new AnimatedSprite(data?.textures ?? [Texture.EMPTY]),
             data
         )

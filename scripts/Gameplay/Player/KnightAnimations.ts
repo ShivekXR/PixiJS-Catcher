@@ -4,6 +4,8 @@ import { Spritesheet } from "pixi.js"
 import AssetsBundleConstants from "AssetsBundleConstants"
 import Animator from "Animator"
 
+// animations for the knight
+
 class KnightAnimation extends ComponentSystem {
     public static readonly ANIMATION_NAME_IDLE: string = "idle"
     public static readonly RUN_LEFT_ANIMATION_NAME: string = "run_left"

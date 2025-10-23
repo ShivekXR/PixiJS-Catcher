@@ -10,6 +10,9 @@ import MathHelpers from "Core/MathHelpers"
 import Collectable from "Item/Collectable"
 import Game from "Game"
 
+// TODO: The main problem with this system -> the lack of object pooling
+// Add poolable component system
+
 class ItemManager extends ComponentSystem {
     public static readonly EVENT_ITEM_COLLECTED = "item_collected"
     public static readonly EVENT_ITEM_DROPPED = "item_dropped"
@@ -19,6 +22,7 @@ class ItemManager extends ComponentSystem {
     private itemSheetLength: number
     private timeToSpawnNext: number = 0
 
+    // it would be great to load items depending on the level progress
     private LoadItemSpritesheet(): void {
         this.itemSheet = AssetsBundleManager.TryGetBundledAsset(
             AssetsBundleConstants.FOOD_LEVELS_BUNDLE,
@@ -32,6 +36,7 @@ class ItemManager extends ComponentSystem {
     }
 
     private RandomSpawnDuration(): number {
+        // magic numbers here aswell, should be placed somewhere else
         return MathHelpers.RandomRange(500, 2000)
     }
 
@@ -45,6 +50,7 @@ class ItemManager extends ComponentSystem {
 
     private GetRandomTexture(): Texture {
         const randomTextureId = MathHelpers.RandomRangeIntExcl(0, this.itemSheetLength)
+        // magic "food_" prefix, ugly
         return this.itemSheet.textures["food_" + randomTextureId]
     }
 
@@ -66,6 +72,7 @@ class ItemManager extends ComponentSystem {
         item.AddComponentSystem(Drop)
         const breakOnGround: BreakOnGround = item.AddComponentSystem(BreakOnGround)
         breakOnGround.events.addEventListener(BreakOnGround.EVENT_BREAK_ON_GROUND, this.OnItemBreak)
+        // Remove Game.playerObject, totally unnecessary and unjustified class coupling
         const collectable: Collectable = item.AddComponentSystem(Collectable, Game.playerObject)
         collectable.events.addEventListener(Collectable.EVENT_COLLECT, this.OnItemCollected)
         item.active = true

@@ -5,6 +5,8 @@ import MoveToClick from "Player/MoveToClick"
 import KnightAnimations from "Player/KnightAnimations"
 import KnightController from "Player/KnightController"
 
+// uhh.. a placeholder, most likely will get some proper meaning in the future
+
 class PlayerPawn {
     public static SpawnPlayer(): GameObject {
         const player: GameObject = new GameObject("Player")

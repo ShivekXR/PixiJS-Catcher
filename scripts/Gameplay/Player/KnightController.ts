@@ -2,6 +2,9 @@ import ComponentSystem from "ComponentSystem"
 import KnightAnimations from "Player/KnightAnimations"
 import MoveToClick, { MoveState } from "Player/MoveToClick"
 
+// not sure what to comment here, this class looks great
+// this is the main component system for the player pawn
+
 class KnightController extends ComponentSystem {
     private movement: MoveToClick
     private animations: KnightAnimations
@@ -32,7 +35,6 @@ class KnightController extends ComponentSystem {
         this.movement = this.gameObject.GetComponentSystem(MoveToClick)
         this.movement.events.addEventListener(MoveToClick.EVENT_MOVE_CHANGE, this.OnMoveChange)
         this.gameObject.container.position = { x: 320, y: 550 }
-        
     }
 
     public override OnDestroy(): void {

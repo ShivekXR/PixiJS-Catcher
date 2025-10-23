@@ -15,6 +15,8 @@ class SpriteContainer extends ContainerComponentSystem<Sprite, SpriteData> {
     constructor(owner: GameObject, data?: SpriteData) {
         super(
             owner,
+            // If the texture data is empty, create a placeholder but
+            // the GameObject is satisfied having a transform
             new Sprite(data?.texture),
             data
         )
