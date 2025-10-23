@@ -1,15 +1,18 @@
 import ComponentSystem from "ComponentSystem"
-import Transform from "Transform"
 import GameObjectBox from "GameObjectBox"
+import ContainerComponentSystem, { ContainerData } from "ContainerComponentSystem"
+import { Container } from "pixi.js"
 
 class GameObject {
-    public name: string = "GameObject"
     private _componentSystems: Map<string, ComponentSystem> = new Map<keyof ComponentSystem, ComponentSystem>()
 
-    private _transform: Transform
-    public get transform(): Transform {
-        return this._transform
+    // @ts-ignore
+    private _containerComponentSystem: ContainerComponentSystem<Container, ContainerData>
+    public get container(): Container {
+        return this._containerComponentSystem.container
     }
+
+    public name: string
 
     private _destroyed: boolean = false
     public get isDestroyed() {
@@ -17,10 +20,7 @@ class GameObject {
     }
 
     constructor(name?: string) {
-        if (name != null) {
-            this.name = name
-        }
-        this._transform = this.AddComponentSystem(Transform)
+        this.name = name ?? "GameObject"
         GameObjectBox.Add(this)
     }
 
@@ -38,23 +38,37 @@ class GameObject {
         return this._active
     }
 
-    public AddComponentSystem<T extends ComponentSystem>(ComponentSystem: { new(owner: GameObject): T }): T {
-        const componentSystem: ComponentSystem = new ComponentSystem(this)
-        this._componentSystems.set(ComponentSystem.name, componentSystem)
+    public AddComponentSystem<CS extends ComponentSystem<Data>, Data>(
+        ComponentSystemClass:
+            { new(owner: GameObject): CS } |
+            { new(owner: GameObject, data?: Data): CS },
+        data?: Data
+    ): CS {
+        let componentSystem: ComponentSystem<Data>
+        if(data != null) {
+            componentSystem = new ComponentSystemClass(this, data)
+        } else {
+            componentSystem = new ComponentSystemClass(this)
+        }
+
+        if (componentSystem instanceof ContainerComponentSystem) {
+            this._containerComponentSystem = componentSystem
+        }
+        this._componentSystems.set(ComponentSystemClass.name, componentSystem)
         if (this._active) {
             componentSystem._Start()
         }
-        return componentSystem as T
+        return componentSystem as CS
     }
 
-    public HasComponentSystem<T extends ComponentSystem>(ComponentSystem: { new(owner: GameObject): T }): boolean {
-        return this._componentSystems.has(ComponentSystem.name)
-    }
-
-    public GetComponentSystem<T extends ComponentSystem>(ComponentSystem: { new(owner: GameObject): T }): T {
-        const componentSystem: T = this._componentSystems.get(ComponentSystem.name) as T
+    public GetComponentSystem<CS extends ComponentSystem>(
+        ComponentSystemClass:
+            { new(owner: GameObject): CS } |
+            { new(owner: GameObject, parent: Container): CS }
+    ): CS {
+        const componentSystem: CS = this._componentSystems.get(ComponentSystemClass.name) as CS
         if (componentSystem == null) {
-            console.error(`GameObject ${this.name} doesn't have "${ComponentSystem.name}" ComponentSystem`)
+            console.error(`GameObject "${this.name}" doesn't have "${ComponentSystemClass.name}" ComponentSystem`)
         }
         return componentSystem
     }

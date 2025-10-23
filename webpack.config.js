@@ -1,4 +1,3 @@
-const BundleAnalyzerPlugin = require("webpack-bundle-analyzer").BundleAnalyzerPlugin
 const CopyPlugin = require("copy-webpack-plugin")
 const HtmlWebpackPlugin = require("html-webpack-plugin")
 const Path = require("path")
@@ -47,9 +46,6 @@ module.exports = (env, argv) => {
                     to: Path.resolve(__dirname, "_compiled/assets"),
                 }],
             }),
-
-            // Bundle graph
-            env.analyze ? new BundleAnalyzerPlugin() : undefined,
         ],
 
         output: {

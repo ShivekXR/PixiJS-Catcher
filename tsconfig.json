@@ -26,9 +26,10 @@
             "*": [
                 "scripts/*",
                 "scripts/Core/*",
-                "scripts/Core/ComponentSystem/*",
-                "scripts/Core/Renderers/*",
                 "scripts/Core/AssetsBundles/*",
+                "scripts/Core/ComponentSystem/*",
+                "scripts/Core/ContainerComponentSystem/*",
+                "scripts/Core/Misc/*",
                 "scripts/Gameplay/*",
             ],
         },

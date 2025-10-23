@@ -12,7 +12,7 @@ async function main() {
     await AssetsBundleManager.LoadBundle(AssetsBundleConstants.CHARACTER_BUNDLE)
 
     ItemManager.SpawnApple()
-    Player.Spawn()
+    Player.SpawnPawn()
 }
 
 main()
