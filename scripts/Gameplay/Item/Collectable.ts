@@ -17,7 +17,7 @@ class Collectable extends ComponentSystem<GameObject> {
         const distanceToCollector: number = collectVector.magnitudeSquared()
         if(distanceToCollector < Collectable.COLLECT_DISTANCE_SQR) {
             this.events.dispatchEvent(new CustomEvent(Collectable.EVENT_COLLECT))
-            this.gameObject.Destroy()
+            this.gameObject.Destroy() // some other component system should take care of that
         }
     }
 
