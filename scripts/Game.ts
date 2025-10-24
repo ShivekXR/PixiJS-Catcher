@@ -1,16 +1,16 @@
+import ItemManager from "@Scripts/Gameplay/Item/ItemManager"
+import PlayerPawn from "@Scripts/Gameplay/Player/PlayerPawn"
+import GlobalInput from "@Scripts/GlobalInput"
+import { Pawn } from "PawnBox"
 import { Application, BaseTexture, Container, Rectangle, SCALE_MODES } from "pixi.js"
-import GlobalInput from "GlobalInput"
-import Player from "Gameplay/Player/PlayerPawn"
-import GameObject from "GameObject"
-import ItemManager from "Item/ItemManager"
 
 class Game {
     private static readonly START_LIVES: number = 10
 
     private static _application: Application
 
-    private static _playerObject: GameObject
-    public static get playerObject(): GameObject {
+    private static _playerObject: Pawn
+    public static get playerObject(): Pawn {
         return this._playerObject
     }
 
@@ -61,14 +61,14 @@ class Game {
         this.AddLives(-1)
     }
 
-    private static items: GameObject
+    private static items: Pawn
 
     public static Start() {
-        this._playerObject = Player.SpawnPlayer()
+        this._playerObject = PlayerPawn.SpawnPlayer()
 
         this.lives = this.START_LIVES
 
-        this.items = new GameObject("Item Manager")
+        this.items = new Pawn("Item Manager")
         const itemManager: ItemManager = this.items.AddComponentSystem(ItemManager)
         itemManager.events.addEventListener(ItemManager.EVENT_ITEM_COLLECTED, this.OnItemCollected)
         itemManager.events.addEventListener(ItemManager.EVENT_ITEM_DROPPED, this.OnItemBreak)

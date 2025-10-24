@@ -1,16 +1,14 @@
-import AssetsBundleConstants from "AssetsBundleConstants"
-import AssetsBundleManager from "AssetsBundleManager"
-import BreakOnGround from "Item/BreakOnGround"
-import Drop from "Item/Drop"
-import GameObject from "GameObject"
-import SpriteContainer from "SpriteContainer"
+import AssetsBundleConstants from "@Scripts/AssetsBundles/AssetsBundleConstants"
+import AssetsBundleManager from "@Scripts/AssetsBundles/AssetsBundleManager"
+import Game from "@Scripts/Game"
+import BreakOnGround from "@Scripts/Gameplay/Item/BreakOnGround"
+import Collectable from "@Scripts/Gameplay/Item/Collectable"
+import Drop from "@Scripts/Gameplay/Item/Drop"
+import MathHelpers from "@Scripts/MathHelpers"
+import { Pawn, PawnModule, SpriteModule } from "PawnBox"
 import { Spritesheet, Texture, Ticker } from "pixi.js"
-import ComponentSystem from "ComponentSystem"
-import MathHelpers from "Core/MathHelpers"
-import Collectable from "Item/Collectable"
-import Game from "Game"
 
-class ItemManager extends ComponentSystem {
+class ItemManager extends PawnModule {
     public static readonly EVENT_ITEM_COLLECTED = "item_collected"
     public static readonly EVENT_ITEM_DROPPED = "item_dropped"
 
@@ -57,8 +55,8 @@ class ItemManager extends ComponentSystem {
     }
 
     private SpawnItem(): void {
-        const item: GameObject = new GameObject(`Item_${ItemManager.itemCounter}`)
-        item.AddComponentSystem(SpriteContainer, {
+        const item: Pawn = new Pawn(`Item_${ItemManager.itemCounter}`)
+        item.AddComponentSystem(SpriteModule, {
             texture: this.GetRandomTexture(),
             position: { x: MathHelpers.RandomRange(0, 640), y: -10 },
             scale: { x: 2, y: 2 }

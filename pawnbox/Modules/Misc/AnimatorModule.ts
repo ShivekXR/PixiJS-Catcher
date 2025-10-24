@@ -1,27 +1,27 @@
-import AnimatedSpriteContainer from "AnimatedSpriteContainer"
-import ComponentSystem from "ComponentSystem"
-import GameObject from "GameObject"
-import { Texture, Resource, FrameObject, AnimatedSprite, Spritesheet } from "pixi.js"
+import { AnimatedSpriteModule } from "@PawnBox/Modules/Container/AnimatedSpriteModule"
+import { PawnModule } from "@PawnBox/Modules/PawnModule"
+import { Pawn } from "@PawnBox/Pawn"
+import { AnimatedSprite, FrameObject, Resource, Spritesheet, Texture } from "pixi.js"
 
-export interface AnimationData {
+export interface AnimatorData {
     textures: Texture<Resource>[] | FrameObject[]
     speed: number
 }
 
-class Animator extends ComponentSystem {
+export class AnimatorModule extends PawnModule {
     private animatedSprite: AnimatedSprite
-    private animations: Map<string, AnimationData> = new Map<string, AnimationData>()
+    private animations: Map<string, AnimatorData> = new Map<string, AnimatorData>()
     public static readonly DEFAULT_ANIMATION_NAME: string = "default"
 
     public override Start(): void {
-        this.animatedSprite = this.gameObject.GetComponentSystem(AnimatedSpriteContainer).animatedSprite
+        this.animatedSprite = this.gameObject.GetComponentSystem(AnimatedSpriteModule).animatedSprite
     }
 
-    public GetAnimationData(name: string): AnimationData | undefined {
+    public GetAnimationData(name: string): AnimatorData | undefined {
         return this.animations.get(name)
     }
 
-    public AddAnimationData(name: string, data: AnimationData): void {
+    public AddAnimationData(name: string, data: AnimatorData): void {
         this.animations.set(name, data)
     }
 
@@ -39,7 +39,7 @@ class Animator extends ComponentSystem {
     }
 
     public PlayAnimation(name: string): void {
-        const data: AnimationData | undefined = this.animations.get(name)
+        const data: AnimatorData | undefined = this.animations.get(name)
         if (data == null) {
             console.error(`GameObject "${this.gameObject.name}" Animator doesn't have "${name}" AnimationData`)
             return
@@ -49,14 +49,12 @@ class Animator extends ComponentSystem {
         this.animatedSprite.play()
     }
 
-    constructor(owner: GameObject, animationData?: AnimationData) {
+    constructor(owner: Pawn, animationData?: AnimatorData) {
         super(owner)
 
         if (animationData != null) {
-            this.AddAnimationData(Animator.DEFAULT_ANIMATION_NAME, animationData)
-            this.PlayAnimation(Animator.DEFAULT_ANIMATION_NAME)
+            this.AddAnimationData(AnimatorModule.DEFAULT_ANIMATION_NAME, animationData)
+            this.PlayAnimation(AnimatorModule.DEFAULT_ANIMATION_NAME)
         }
     }
 }
-
-export default Animator

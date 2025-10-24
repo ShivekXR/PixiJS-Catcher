@@ -25,7 +25,10 @@ module.exports = (env, argv) => {
             rules: [
                 {
                     test: /\.ts$/,
-                    include: [Path.resolve(__dirname, "scripts")],
+                    include: [
+                        Path.resolve(__dirname, "scripts"),
+                        Path.resolve(__dirname, "pawnbox"),
+                    ],
                     loader: "ts-loader",
                 },
             ],

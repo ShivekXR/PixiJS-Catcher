@@ -1,4 +1,4 @@
-import AssetsBundleConstants from "AssetsBundleConstants"
+import AssetsBundleConstants from "@Scripts/AssetsBundles/AssetsBundleConstants"
 import { Assets } from "pixi.js"
 
 // TODO: Throw some errors

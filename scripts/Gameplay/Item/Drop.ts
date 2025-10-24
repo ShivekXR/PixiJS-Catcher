@@ -1,7 +1,7 @@
-import ComponentSystem from "ComponentSystem"
+import { PawnModule } from "PawnBox"
 import { Ticker } from "pixi.js"
 
-class Drop extends ComponentSystem {
+class Drop extends PawnModule {
     private ticker: Ticker = Ticker.shared
 
     public override Update(): void {

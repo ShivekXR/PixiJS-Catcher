@@ -1,6 +1,6 @@
-import ComponentSystem from "ComponentSystem"
+import { PawnModule } from "PawnBox"
 
-class BreakOnGround extends ComponentSystem {
+class BreakOnGround extends PawnModule {
     public static readonly EVENT_BREAK_ON_GROUND: string = "break"
 
     public override Update(): void {

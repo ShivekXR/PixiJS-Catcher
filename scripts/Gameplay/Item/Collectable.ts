@@ -1,9 +1,8 @@
-import ComponentSystem from "ComponentSystem"
-import GameObject from "GameObject"
 import "@pixi/math-extras"
+import { Pawn, PawnModule } from "PawnBox"
 import { ObservablePoint, Point } from "pixi.js"
 
-class Collectable extends ComponentSystem<GameObject> {
+class Collectable extends PawnModule<Pawn> {
     public static readonly EVENT_COLLECT: string = "collect"
     private static readonly COLLECT_DISTANCE_SQR = 600
 
@@ -21,7 +20,7 @@ class Collectable extends ComponentSystem<GameObject> {
         }
     }
 
-    constructor(owner: GameObject, collector?: GameObject) {
+    constructor(owner: Pawn, collector?: Pawn) {
         super(owner)
         if(collector != null) {
             this.collectorPosition = collector.container.position

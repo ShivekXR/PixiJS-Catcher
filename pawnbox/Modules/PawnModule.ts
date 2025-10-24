@@ -1,15 +1,15 @@
-import GameObject from "GameObject"
+import { Pawn } from "@PawnBox/Pawn"
 
 // TODO: Make component system optionally unique
 // GameObject should not have multiple transforms or renderers
 
-abstract class ComponentSystem<Data = void> {
-    private _gameObject: GameObject
-    public get gameObject(): GameObject {
+export abstract class PawnModule<Data = void> {
+    private _gameObject: Pawn
+    public get gameObject(): Pawn {
         return this._gameObject
     }
 
-    constructor(owner: GameObject, _data?: Data) {
+    constructor(owner: Pawn, _data?: Data) {
         this._gameObject = owner
     }
 
@@ -30,5 +30,3 @@ abstract class ComponentSystem<Data = void> {
     public Update?(): void
     public OnDestroy?(): void
 }
-
-export default ComponentSystem

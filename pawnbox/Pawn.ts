@@ -1,12 +1,12 @@
-import ComponentSystem from "ComponentSystem"
-import GameObjectBox from "GameObjectBox"
-import ContainerComponentSystem, { ContainerData } from "ContainerComponentSystem"
+import { ContainerBaseModule, ContainerData } from "@PawnBox/Modules/Container/ContainerBaseModule"
+import { PawnModule } from "@PawnBox/Modules/PawnModule"
+import { PawnBox } from "@PawnBox/PawnManager"
 import { Container } from "pixi.js"
 
-class GameObject {
-    private _componentSystems: Map<string, ComponentSystem> = new Map<keyof ComponentSystem, ComponentSystem>()
+export class Pawn {
+    private _componentSystems: Map<string, PawnModule> = new Map<keyof PawnModule, PawnModule>()
 
-    private _containerComponentSystem: ContainerComponentSystem<Container, ContainerData>
+    private _containerComponentSystem: ContainerBaseModule<Container, ContainerData>
     public get container(): Container {
         return this._containerComponentSystem.container
     }
@@ -20,7 +20,7 @@ class GameObject {
 
     constructor(name?: string) {
         this.name = name ?? "GameObject"
-        GameObjectBox.Add(this)
+        PawnBox.Add(this)
     }
 
     private _active: boolean = false
@@ -41,20 +41,20 @@ class GameObject {
         return this._active
     }
 
-    public AddComponentSystem<CS extends ComponentSystem<Data>, Data>(
+    public AddComponentSystem<CS extends PawnModule<Data>, Data>(
         ComponentSystemClass:
-            { new(owner: GameObject): CS } |
-            { new(owner: GameObject, data?: Data): CS },
+            { new(owner: Pawn): CS } |
+            { new(owner: Pawn, data?: Data): CS },
         data?: Data
     ): CS {
-        let componentSystem: ComponentSystem<Data>
+        let componentSystem: PawnModule<Data>
         if(data != null) {
             componentSystem = new ComponentSystemClass(this, data)
         } else {
             componentSystem = new ComponentSystemClass(this)
         }
 
-        if (componentSystem instanceof ContainerComponentSystem) {
+        if (componentSystem instanceof ContainerBaseModule) {
             this._containerComponentSystem = componentSystem
         }
         this._componentSystems.set(ComponentSystemClass.name, componentSystem)
@@ -64,10 +64,10 @@ class GameObject {
         return componentSystem as CS
     }
 
-    public GetComponentSystem<CS extends ComponentSystem>(
+    public GetComponentSystem<CS extends PawnModule>(
         ComponentSystemClass:
-            { new(owner: GameObject): CS } |
-            { new(owner: GameObject, parent: Container): CS }
+            { new(owner: Pawn): CS } |
+            { new(owner: Pawn, parent: Container): CS }
     ): CS {
         const componentSystem: CS = this._componentSystems.get(ComponentSystemClass.name) as CS
         if (componentSystem == null) {
@@ -76,7 +76,7 @@ class GameObject {
         return componentSystem
     }
 
-    private GetAllComponentSystemsCopy(): ComponentSystem[] {
+    private GetAllComponentSystemsCopy(): PawnModule[] {
         return [...this._componentSystems.values()]
     }
 
@@ -102,8 +102,6 @@ class GameObject {
         for (let componentSystem of this.GetAllComponentSystemsCopy()) {
             componentSystem?.OnDestroy?.()
         }
-        GameObjectBox.Remove(this)
+        PawnBox.Remove(this)
     }
 }
-
-export default GameObject

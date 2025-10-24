@@ -1,6 +1,6 @@
-import ComponentSystem from "ComponentSystem"
-import Game from "Game"
-import GlobalInput from "GlobalInput"
+import Game from "@Scripts/Game"
+import GlobalInput from "@Scripts/GlobalInput"
+import { PawnModule } from "PawnBox"
 import { ObservablePoint, Ticker } from "pixi.js"
 
 export enum MoveState {
@@ -9,7 +9,7 @@ export enum MoveState {
     Right
 }
 
-class MoveToClick extends ComponentSystem {
+class MoveToClick extends PawnModule {
     public static readonly EVENT_MOVE_CHANGE: string = "move_change"
     private static readonly MOVEMENT_STOP_PRECISION: number = 1
     private static readonly SPEED: number = 0.5

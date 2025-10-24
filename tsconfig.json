@@ -24,14 +24,14 @@
         // Paths
         "baseUrl": ".",
         "paths": {
-            "*": [
+            "PawnBox": [
+                "pawnbox/PawnBox",
+            ],
+            "@PawnBox/*": [
+                "pawnbox/*",
+            ],
+            "@Scripts/*": [
                 "scripts/*",
-                "scripts/Core/*",
-                "scripts/Core/AssetsBundles/*",
-                "scripts/Core/ComponentSystem/*",
-                "scripts/Core/ContainerComponentSystem/*",
-                "scripts/Core/Misc/*",
-                "scripts/Gameplay/*",
             ],
         },
     }

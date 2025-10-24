@@ -1,5 +1,5 @@
-import ContainerComponentSystem, { ContainerData } from "ContainerComponentSystem"
-import GameObject from "GameObject"
+import { ContainerBaseModule, ContainerData } from "@PawnBox/Modules/Container/ContainerBaseModule"
+import { Pawn } from "@PawnBox/Pawn"
 import { AnimatedSprite, FrameObject, IPointData, Resource, Texture } from "pixi.js"
 
 export interface AnimatedSpriteData extends ContainerData {
@@ -8,12 +8,12 @@ export interface AnimatedSpriteData extends ContainerData {
     anchor?: IPointData
 }
 
-class AnimatedSpriteRenderer extends ContainerComponentSystem<AnimatedSprite, AnimatedSpriteData> {
+export class AnimatedSpriteModule extends ContainerBaseModule<AnimatedSprite, AnimatedSpriteData> {
     public get animatedSprite(): AnimatedSprite {
         return this._container
     }
 
-    constructor(owner: GameObject, data?: AnimatedSpriteData) {
+    constructor(owner: Pawn, data?: AnimatedSpriteData) {
         super(
             owner,
             new AnimatedSprite(data?.textures ?? [Texture.EMPTY]),
@@ -23,5 +23,3 @@ class AnimatedSpriteRenderer extends ContainerComponentSystem<AnimatedSprite, An
         this.animatedSprite.anchor.set(data?.anchor?.x ?? 0.5, data?.anchor?.y ?? 0.5)
     }
 }
-
-export default AnimatedSpriteRenderer

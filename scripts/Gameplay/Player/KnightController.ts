@@ -1,8 +1,8 @@
-import ComponentSystem from "ComponentSystem"
-import KnightAnimations from "Player/KnightAnimations"
-import MoveToClick, { MoveState } from "Player/MoveToClick"
+import KnightAnimations from "@Scripts/Gameplay/Player/KnightAnimations"
+import MoveToClick, { MoveState } from "@Scripts/Gameplay/Player/MoveToClick"
+import { PawnModule } from "PawnBox"
 
-class KnightController extends ComponentSystem {
+class KnightController extends PawnModule {
     private movement: MoveToClick
     private animations: KnightAnimations
 

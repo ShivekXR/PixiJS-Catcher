@@ -1,14 +1,14 @@
-import GameObject from "GameObject"
+import { Pawn } from "@PawnBox/Pawn"
 import { Ticker } from "pixi.js"
 
-class GameObjectBox {
-    private static _gameObjects: Array<GameObject> = new Array<GameObject>()
+export class PawnBox {
+    private static _gameObjects: Array<Pawn> = new Array<Pawn>()
 
-    private static GetGameObjectsCopy(): GameObject[] {
+    private static GetGameObjectsCopy(): Pawn[] {
         return [...this._gameObjects]
     }
 
-    public static Add(gameObject: GameObject): void {
+    public static Add(gameObject: Pawn): void {
         this._gameObjects.push(gameObject)
     }
 
@@ -22,12 +22,10 @@ class GameObjectBox {
         Ticker.shared.add(() => this.Update())
     }
 
-    public static Remove(gameObject: GameObject): void {
+    public static Remove(gameObject: Pawn): void {
         const indexToRemove: number = this._gameObjects.indexOf(gameObject)
         this._gameObjects.splice(indexToRemove, 1)
     }
 }
 
-GameObjectBox._Initialize()
-
-export default GameObjectBox
+PawnBox._Initialize()
