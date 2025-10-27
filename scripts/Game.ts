@@ -1,7 +1,7 @@
-import ItemManager from "@Scripts/Gameplay/Item/ItemManager"
-import PlayerPawn from "@Scripts/Gameplay/Player/PlayerPawn"
-import GlobalInput from "@Scripts/GlobalInput"
-import { Pawn } from "PawnBox"
+import { ItemManager } from "@Scripts/Gameplay/Item/ItemManager"
+import { PlayerPawn } from "@Scripts/Gameplay/Player/PlayerPawn"
+import { GlobalInput } from "@Scripts/GlobalInput"
+import { PawnEventHandler, Pawn } from "PawnBox"
 import { Application, BaseTexture, Container, Rectangle, SCALE_MODES } from "pixi.js"
 
 class Game {
@@ -44,7 +44,7 @@ class Game {
         globalThis.__PIXI_APP__ = this._application
     }
 
-    private static OnItemCollected: EventListener = () => {
+    private static OnItemCollected: PawnEventHandler = () => {
         console.log("+1")
     }
 
@@ -57,7 +57,7 @@ class Game {
         }
     }
 
-    private static OnItemBreak: EventListener = () => {
+    private static OnItemDropped: PawnEventHandler = () => {
         this.AddLives(-1)
     }
 
@@ -68,10 +68,10 @@ class Game {
 
         this.lives = this.START_LIVES
 
-        this.items = new Pawn("Item Manager")
-        const itemManager: ItemManager = this.items.AddComponentSystem(ItemManager)
-        itemManager.events.addEventListener(ItemManager.EVENT_ITEM_COLLECTED, this.OnItemCollected)
-        itemManager.events.addEventListener(ItemManager.EVENT_ITEM_DROPPED, this.OnItemBreak)
+        this.items = new Pawn({ name: "Item Manager" })
+        const itemManager: ItemManager = this.items.AddModule(ItemManager)
+        itemManager.itemCollected.Subscribe(this.OnItemCollected)
+        itemManager.itemDropped.Subscribe(this.OnItemDropped)
         this.items.active = true
     }
 

@@ -1,9 +1,8 @@
 import "@pixi/math-extras"
-import { Pawn, PawnModule } from "PawnBox"
+import { PawnEvent, Pawn, PawnModule } from "PawnBox"
 import { ObservablePoint, Point } from "pixi.js"
 
-class Collectable extends PawnModule<Pawn> {
-    public static readonly EVENT_COLLECT: string = "collect"
+export class Collectable extends PawnModule<Pawn> {
     private static readonly COLLECT_DISTANCE_SQR = 600
 
     private _collectorPosition: ObservablePoint
@@ -11,21 +10,21 @@ class Collectable extends PawnModule<Pawn> {
         this._collectorPosition = value
     }
 
+    public collected: PawnEvent = new PawnEvent(this)
+
     public override Update(): void {
-        const collectVector: Point = this._collectorPosition.subtract(this.gameObject.container.position)
+        const collectVector: Point = this._collectorPosition.subtract(this.mainContainer.position)
         const distanceToCollector: number = collectVector.magnitudeSquared()
         if(distanceToCollector < Collectable.COLLECT_DISTANCE_SQR) {
-            this.events.dispatchEvent(new CustomEvent(Collectable.EVENT_COLLECT))
-            this.gameObject.Destroy()
+            this.collected.Dispatch()
+            this.pawn.Destroy()
         }
     }
 
     constructor(owner: Pawn, collector?: Pawn) {
         super(owner)
         if(collector != null) {
-            this.collectorPosition = collector.container.position
+            this.collectorPosition = collector.transform.position
         }
     }
 }
-
-export default Collectable

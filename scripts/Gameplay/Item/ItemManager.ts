@@ -1,17 +1,14 @@
 import AssetsBundleConstants from "@Scripts/AssetsBundles/AssetsBundleConstants"
 import AssetsBundleManager from "@Scripts/AssetsBundles/AssetsBundleManager"
 import Game from "@Scripts/Game"
-import BreakOnGround from "@Scripts/Gameplay/Item/BreakOnGround"
-import Collectable from "@Scripts/Gameplay/Item/Collectable"
-import Drop from "@Scripts/Gameplay/Item/Drop"
+import { BreakOnGround } from "@Scripts/Gameplay/Item/BreakOnGround"
+import { Collectable } from "@Scripts/Gameplay/Item/Collectable"
+import { Drop } from "@Scripts/Gameplay/Item/Drop"
 import MathHelpers from "@Scripts/MathHelpers"
-import { Pawn, PawnModule, SpriteModule } from "PawnBox"
+import { PawnEvent, PawnEventHandler, Pawn, PawnModule, SpriteModule } from "PawnBox"
 import { Spritesheet, Texture, Ticker } from "pixi.js"
 
-class ItemManager extends PawnModule {
-    public static readonly EVENT_ITEM_COLLECTED = "item_collected"
-    public static readonly EVENT_ITEM_DROPPED = "item_dropped"
-
+export class ItemManager extends PawnModule {
     private static itemCounter = 0
     private itemSheet: Spritesheet
     private itemSheetLength: number
@@ -46,30 +43,34 @@ class ItemManager extends PawnModule {
         return this.itemSheet.textures["food_" + randomTextureId]
     }
 
-    private OnItemCollected: EventListener = () => {
-        this.events.dispatchEvent(new CustomEvent(ItemManager.EVENT_ITEM_COLLECTED))
+    public itemCollected: PawnEvent = new PawnEvent(this)
+
+    private OnItemCollected: PawnEventHandler = () => {
+        this.itemCollected.Dispatch()
     }
 
-    private OnItemBreak: EventListener = () => {
-        this.events.dispatchEvent(new CustomEvent(ItemManager.EVENT_ITEM_DROPPED))
+    public itemDropped: PawnEvent = new PawnEvent(this)
+
+    private OnItemBreak: PawnEventHandler = () => {
+        this.itemDropped.Dispatch()
     }
 
     private SpawnItem(): void {
-        const item: Pawn = new Pawn(`Item_${ItemManager.itemCounter}`)
-        item.AddComponentSystem(SpriteModule, {
-            texture: this.GetRandomTexture(),
+        const item: Pawn = new Pawn({
+            name: `Item_${ItemManager.itemCounter}`,
             position: { x: MathHelpers.RandomRange(0, 640), y: -10 },
-            scale: { x: 2, y: 2 }
         })
-        item.AddComponentSystem(Drop)
-        const breakOnGround: BreakOnGround = item.AddComponentSystem(BreakOnGround)
-        breakOnGround.events.addEventListener(BreakOnGround.EVENT_BREAK_ON_GROUND, this.OnItemBreak)
-        const collectable: Collectable = item.AddComponentSystem(Collectable, Game.playerObject)
-        collectable.events.addEventListener(Collectable.EVENT_COLLECT, this.OnItemCollected)
+        item.AddModule(SpriteModule, {
+            texture: this.GetRandomTexture(),
+            scale: { x: 2, y: 2 },
+        })
+        item.AddModule(Drop)
+        const breakOnGround: BreakOnGround = item.AddModule(BreakOnGround)
+        breakOnGround.broken.Subscribe(this.OnItemBreak)
+        const collectable: Collectable = item.AddModule(Collectable, Game.playerObject)
+        collectable.collected.Subscribe(this.OnItemCollected)
         item.active = true
 
         ItemManager.itemCounter++
     }
 }
-
-export default ItemManager

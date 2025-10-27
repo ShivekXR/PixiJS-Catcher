@@ -1,27 +1,23 @@
+import { PawnEvent, PawnEventData } from "PawnBox"
 import { IPointData } from "pixi.js"
 
-class GlobalInput {
-    public static readonly ON_CLICK: string = "click"
+export interface PointerData extends PawnEventData {
+    pointerPosition: IPointData
+}
 
-    private _events: EventTarget = new EventTarget()
-    public get events(): EventTarget {
-        return this._events
-    }
+export class GlobalInput {
+    public clicked: PawnEvent<PointerData> = new PawnEvent(this)
 
     private OnCanvasClick = (pointerEvent: PointerEvent) => {
-        const clickPosition: IPointData = {
-            x: pointerEvent.offsetX,
-            y: pointerEvent.offsetY,
-        }
-        this.events.dispatchEvent(new CustomEvent(
-            GlobalInput.ON_CLICK,
-            { detail: clickPosition }
-        ))
+        this.clicked.Dispatch({
+            pointerPosition: {
+                x: pointerEvent.offsetX,
+                y: pointerEvent.offsetY,
+            }
+        })
     }
 
     constructor(view: HTMLCanvasElement) {
         view.addEventListener("click", this.OnCanvasClick)
     }
 }
-
-export default GlobalInput

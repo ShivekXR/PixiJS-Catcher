@@ -3,7 +3,7 @@ import AssetsBundleManager from "@Scripts/AssetsBundles/AssetsBundleManager"
 import { AnimatorModule, PawnModule } from "PawnBox"
 import { Spritesheet } from "pixi.js"
 
-class KnightAnimations extends PawnModule {
+export class KnightAnimations extends PawnModule {
     public static readonly ANIMATION_NAME_IDLE: string = "idle"
     public static readonly RUN_LEFT_ANIMATION_NAME: string = "run_left"
     public static readonly RUN_RIGHT_ANIMATION_NAME: string = "run_right"
@@ -25,9 +25,7 @@ class KnightAnimations extends PawnModule {
     }
 
     public override Start(): void {
-        this.animator = this.gameObject.GetComponentSystem(AnimatorModule)
+        this.animator = this.pawn.GetModule(AnimatorModule)
         this.LoadAnimations()
     }
 }
-
-export default KnightAnimations

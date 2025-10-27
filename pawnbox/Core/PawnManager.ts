@@ -1,7 +1,7 @@
-import { Pawn } from "@PawnBox/Pawn"
+import { Pawn } from "@PawnBox/Core/Pawn"
 import { Ticker } from "pixi.js"
 
-export class PawnBox {
+export class PawnManager {
     private static _gameObjects: Array<Pawn> = new Array<Pawn>()
 
     private static GetGameObjectsCopy(): Pawn[] {
@@ -28,4 +28,4 @@ export class PawnBox {
     }
 }
 
-PawnBox._Initialize()
+PawnManager._Initialize()

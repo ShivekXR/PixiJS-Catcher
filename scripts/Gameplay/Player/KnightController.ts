@@ -1,13 +1,13 @@
-import KnightAnimations from "@Scripts/Gameplay/Player/KnightAnimations"
-import MoveToClick, { MoveState } from "@Scripts/Gameplay/Player/MoveToClick"
-import { PawnModule } from "PawnBox"
+import { KnightAnimations } from "@Scripts/Gameplay/Player/KnightAnimations"
+import { MoveState, MoveStateData, MoveToClick } from "@Scripts/Gameplay/Player/MoveToClick"
+import { PawnEventHandler, PawnModule } from "PawnBox"
 
-class KnightController extends PawnModule {
+export class KnightController extends PawnModule {
     private movement: MoveToClick
     private animations: KnightAnimations
 
-    private OnMoveChange: EventListener = (event: CustomEventInit) => {
-        this.ChangeAnimation(event.detail)
+    private OnMoveDirectionChange: PawnEventHandler<MoveStateData> = (data: MoveStateData) => {
+        this.ChangeAnimation(data.moveState)
     }
 
     private ChangeAnimation(state: MoveState): void {
@@ -28,16 +28,13 @@ class KnightController extends PawnModule {
     }
 
     public override Start(): void {
-        this.animations = this.gameObject.GetComponentSystem(KnightAnimations)
-        this.movement = this.gameObject.GetComponentSystem(MoveToClick)
-        this.movement.events.addEventListener(MoveToClick.EVENT_MOVE_CHANGE, this.OnMoveChange)
-        this.gameObject.container.position = { x: 320, y: 550 }
-        
+        this.animations = this.pawn.GetModule(KnightAnimations)
+        this.movement = this.pawn.GetModule(MoveToClick)
+        this.movement.moveDirectionChanged.Subscribe(this.OnMoveDirectionChange)
+        this.mainContainer.position = { x: 320, y: 550 }
     }
 
     public override OnDestroy(): void {
-        this.movement.events.removeEventListener(MoveToClick.EVENT_MOVE_CHANGE, this.OnMoveChange)
+        this.movement.moveDirectionChanged.Unsubscribe(this.OnMoveDirectionChange)
     }
 }
-
-export default KnightController

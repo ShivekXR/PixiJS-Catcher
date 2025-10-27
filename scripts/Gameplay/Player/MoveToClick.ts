@@ -1,6 +1,6 @@
 import Game from "@Scripts/Game"
-import GlobalInput from "@Scripts/GlobalInput"
-import { PawnModule } from "PawnBox"
+import { PointerData } from "@Scripts/GlobalInput"
+import { PawnEvent, PawnEventData, PawnEventHandler, PawnModule } from "PawnBox"
 import { ObservablePoint, Ticker } from "pixi.js"
 
 export enum MoveState {
@@ -9,8 +9,11 @@ export enum MoveState {
     Right
 }
 
-class MoveToClick extends PawnModule {
-    public static readonly EVENT_MOVE_CHANGE: string = "move_change"
+export interface MoveStateData extends PawnEventData {
+    moveState: MoveState
+}
+
+export class MoveToClick extends PawnModule {
     private static readonly MOVEMENT_STOP_PRECISION: number = 1
     private static readonly SPEED: number = 0.5
     private moveState: MoveState | undefined
@@ -18,23 +21,22 @@ class MoveToClick extends PawnModule {
     private targetPositionX: number
     private ticker: Ticker = Ticker.shared
 
-    private OnClick: EventListener = (event: CustomEventInit) => {
-        this.targetPositionX = event.detail.x
+    public moveDirectionChanged: PawnEvent<MoveStateData> = new PawnEvent(this)
+
+    private OnPointerClick: PawnEventHandler<PointerData> = (data: PointerData) => {
+        this.targetPositionX = data.pointerPosition.x
     }
 
     public override Start(): void {
-        this.position = this.gameObject.container.position
+        this.position = this.mainContainer.position
         this.targetPositionX = this.position.x
-        Game.globalInput.events.addEventListener(GlobalInput.ON_CLICK, this.OnClick)
+        Game.globalInput.clicked.Subscribe(this.OnPointerClick)
     }
 
     private TryChangeState(newState: MoveState) {
         if (this.moveState != newState) {
             this.moveState = newState
-            this.events.dispatchEvent(new CustomEvent(
-                MoveToClick.EVENT_MOVE_CHANGE,
-                { detail: this.moveState }
-            ))
+            this.moveDirectionChanged.Dispatch({ moveState: this.moveState })
         }
     }
 
@@ -63,8 +65,6 @@ class MoveToClick extends PawnModule {
     }
 
     public override OnDestroy(): void {
-        Game.globalInput.events.removeEventListener(GlobalInput.ON_CLICK, this.OnClick)
+        Game.globalInput.clicked.Unsubscribe(this.OnPointerClick)
     }
 }
-
-export default MoveToClick

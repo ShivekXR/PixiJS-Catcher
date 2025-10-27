@@ -1,6 +1,6 @@
+import { Pawn } from "@PawnBox/Core/Pawn"
 import { AnimatedSpriteModule } from "@PawnBox/Modules/Container/AnimatedSpriteModule"
-import { PawnModule } from "@PawnBox/Modules/PawnModule"
-import { Pawn } from "@PawnBox/Pawn"
+import { PawnModule } from "@PawnBox/Modules/Main/PawnModule"
 import { AnimatedSprite, FrameObject, Resource, Spritesheet, Texture } from "pixi.js"
 
 export interface AnimatorData {
@@ -14,7 +14,7 @@ export class AnimatorModule extends PawnModule {
     public static readonly DEFAULT_ANIMATION_NAME: string = "default"
 
     public override Start(): void {
-        this.animatedSprite = this.gameObject.GetComponentSystem(AnimatedSpriteModule).animatedSprite
+        this.animatedSprite = this.pawn.GetModule(AnimatedSpriteModule).animatedSprite
     }
 
     public GetAnimationData(name: string): AnimatorData | undefined {
@@ -41,7 +41,7 @@ export class AnimatorModule extends PawnModule {
     public PlayAnimation(name: string): void {
         const data: AnimatorData | undefined = this.animations.get(name)
         if (data == null) {
-            console.error(`GameObject "${this.gameObject.name}" Animator doesn't have "${name}" AnimationData`)
+            console.error(`GameObject "${this.pawn.name}" Animator doesn't have "${name}" AnimationData`)
             return
         }
         this.animatedSprite.textures = data.textures
