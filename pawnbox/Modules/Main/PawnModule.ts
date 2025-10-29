@@ -2,8 +2,14 @@ import { Pawn } from "@PawnBox/Core/Pawn"
 import { PawnEvent, PawnEventData, PawnEventHandler } from "@PawnBox/Core/PawnEvent"
 import { Container } from "pixi.js"
 
+export interface PawnModuleData {
+    _PawnActivated?: PawnEvent
+    _PawnUpdate?: PawnEvent
+    _PawnModulesRemoved?: PawnEvent
+}
+
 // TODO: Add OnEnable and OnDisable
-export abstract class PawnModule<Data = void> {
+export abstract class PawnModule<Data extends PawnModuleData = PawnModuleData> {
     public static readonly UNIQUE: boolean = false
 
     private _pawn: Pawn
@@ -15,7 +21,7 @@ export abstract class PawnModule<Data = void> {
         return this.pawn.transform
     }
 
-    constructor(owner: Pawn, _data?: Data) {
+    constructor(owner: Pawn, data: Data) {
         this._pawn = owner
 
         if (this.OnStart != null) {
@@ -23,25 +29,29 @@ export abstract class PawnModule<Data = void> {
                 this.OnStart()
                 this._started = true
             } else {
-                this.pawn._PawnActivated.Subscribe(this._OnPawnActivated)
+                this._PawnActivated = data._PawnActivated!
+                this._PawnActivated.Subscribe(this._OnPawnActivated)
             }
         }
 
         if (this.OnUpdate != null) {
-            this.pawn._PawnUpdate.Subscribe(this._OnPawnUpdate)
+            this._PawnUpdate = data._PawnUpdate!
+            this._PawnUpdate.Subscribe(this._OnPawnUpdate)
         }
 
-        this.pawn._PawnModulesRemoved.Subscribe(this._OnPawnDestroyed)
+        data._PawnModulesRemoved!.Subscribe(this._OnPawnDestroyed)
     }
 
+    private _PawnActivated: PawnEvent
     private _started: boolean = false
     protected OnStart?(): void
     private _OnPawnActivated: PawnEventHandler = () => {
         this.OnStart!()
         this._started = true
-        this.pawn._PawnActivated.Unsubscribe(this._OnPawnActivated)
+        this._PawnActivated.Unsubscribe(this._OnPawnActivated)
     }
 
+    private _PawnUpdate: PawnEvent
     protected OnUpdate?(): void
     private _OnPawnUpdate: PawnEventHandler = () => {
         this.OnUpdate!()
@@ -52,13 +62,12 @@ export abstract class PawnModule<Data = void> {
         this.SelfDestroy()
     }
     private SelfDestroy(): void {
-        if (this.OnStart != null && !this._started) {
-            this.pawn._PawnActivated.Unsubscribe(this._OnPawnActivated)
+        if (this._PawnActivated != null && !this._started) {
+            this._PawnActivated.Unsubscribe(this._OnPawnActivated)
         }
         if (this.OnUpdate != null) {
-            this.pawn._PawnUpdate.Unsubscribe(this._OnPawnUpdate)
+            this._PawnUpdate.Unsubscribe(this._OnPawnUpdate)
         }
-        this.pawn._PawnModulesRemoved.Unsubscribe(this._OnPawnDestroyed)
         this.OnDestroy?.()
     }
 

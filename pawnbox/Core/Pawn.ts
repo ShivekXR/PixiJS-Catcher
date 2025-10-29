@@ -1,10 +1,11 @@
 import { PawnEvent, PawnEventData, PawnEventHandler } from "@PawnBox/Core/PawnEvent"
 import { PawnManager } from "@PawnBox/Core/PawnManager"
 import { ContainerData } from "@PawnBox/Modules/Main/PawnContainerModule"
-import { PawnModule } from "@PawnBox/Modules/Main/PawnModule"
+import { PawnModule, PawnModuleData } from "@PawnBox/Modules/Main/PawnModule"
 import { TransformModule } from "@PawnBox/Modules/Main/TransformModule"
 import { Container } from "pixi.js"
 
+// TODO: Rename "data" across all classes
 // TODO: Add optional pawn modules array
 // TODO: Add optional active param:
 //       - active == null && modules non empty: auto start after adding initial modules
@@ -34,8 +35,8 @@ export class Pawn {
         PawnManager.Register(this)
     }
 
-    public AddModule<Module extends PawnModule<Data>, Data>(
-        PawnModuleClass: new (owner: Pawn, data?: Data) => Module,
+    public AddModule<Module extends PawnModule<Data>, Data extends PawnModuleData = PawnModuleData>(
+        PawnModuleClass: new (owner: Pawn, data: Data) => Module,
         data?: Data
     ): Module {
         // @ts-ignore TODO: Is there a clever way to get this static property without the ts-ignore?
@@ -45,15 +46,20 @@ export class Pawn {
                 return undefined!
             }
         }
-            
+
+        data ??= {} as Data
+        data._PawnActivated = this._PawnActivated
+        data._PawnUpdate = this._PawnUpdate
+        data._PawnModulesRemoved = this._PawnModulesRemoved
+
         const module: Module = new PawnModuleClass(this, data)
         module._ModuleDestroyed.Subscribe(this.OnModuleDestroyed)
         this.modules.push(module)
         return module
     }
 
-    public HasModule<Module extends PawnModule>(
-        PawnModuleClass: { new(owner: Pawn): Module }
+    public HasModule<Module extends PawnModule<Data>, Data extends PawnModuleData = PawnModuleData>(
+        PawnModuleClass: new (owner: Pawn, data: Data) => Module
     ): boolean {
         for (let module of this.modules) {
             if (module instanceof PawnModuleClass) {
@@ -63,8 +69,8 @@ export class Pawn {
         return false
     }
 
-    public GetModule<Module extends PawnModule>(
-        PawnModuleClass: { new(owner: Pawn): Module }
+    public GetModule<Module extends PawnModule<Data>, Data extends PawnModuleData = PawnModuleData>(
+        PawnModuleClass: new (owner: Pawn, data: Data) => Module
     ): Module {
         for (let module of this.modules) {
             if (module instanceof PawnModuleClass) {
@@ -75,8 +81,8 @@ export class Pawn {
         return undefined!
     }
 
-    public GetModules<Module extends PawnModule>(
-        PawnModuleClass: { new(owner: Pawn): Module }
+    public GetModules<Module extends PawnModule<Data>, Data extends PawnModuleData = PawnModuleData>(
+        PawnModuleClass: new (owner: Pawn, data: Data) => Module
     ): Array<Module> {
         const modules: Array<Module> = new Array<Module>()
         for (let module of this.modules) {
@@ -91,7 +97,7 @@ export class Pawn {
     }
 
     private OnModuleDestroyed: PawnEventHandler<PawnEventData<PawnModule>> = (data: PawnEventData<PawnModule>) => {
-        if(data.source == null) {
+        if (data.source == null) {
             return
         }
         this.RemoveModule(data.source!)
@@ -112,7 +118,7 @@ export class Pawn {
         this.modules = []
     }
 
-    public _PawnActivated: PawnEvent = new PawnEvent() // TODO: Toss into data, make private and add <>
+    private _PawnActivated: PawnEvent<PawnEventData<Pawn>> = new PawnEvent<PawnEventData<Pawn>>()
     private _active: boolean = false
     public get active(): boolean {
         return this._active
@@ -126,7 +132,7 @@ export class Pawn {
         this._PawnActivated.Dispatch()
     }
 
-    public _PawnUpdate: PawnEvent = new PawnEvent() // TODO: Make private and add <>
+    private _PawnUpdate: PawnEvent<PawnEventData<Pawn>> = new PawnEvent<PawnEventData<Pawn>>()
     public Update(): void {
         if (!this._active) {
             return
@@ -134,7 +140,7 @@ export class Pawn {
         this._PawnUpdate.Dispatch()
     }
 
-    public _PawnModulesRemoved: PawnEvent = new PawnEvent() // TODO: Make private and add <>
+    private _PawnModulesRemoved: PawnEvent<PawnEventData<Pawn>> = new PawnEvent<PawnEventData<Pawn>>()
     public Destroy(): void {
         this.RemoveAllModules()
         PawnManager.Remove(this)

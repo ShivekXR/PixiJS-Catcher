@@ -3,7 +3,7 @@ import { ContainerData, PawnContainerModule } from "@PawnBox/Modules/Main/PawnCo
 import { Container } from "pixi.js"
 
 export abstract class BaseContainerModule<Base extends Container> extends PawnContainerModule<Base> {
-    constructor(owner: Pawn, container: Base, data?: ContainerData) {
+    constructor(owner: Pawn, container: Base, data: ContainerData) {
         super(owner, container, data)
         this._container.setParent(this.pawn.transform)
     }

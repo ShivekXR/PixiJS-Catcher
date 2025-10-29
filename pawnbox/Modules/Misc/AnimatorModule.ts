@@ -1,27 +1,31 @@
 import { Pawn } from "@PawnBox/Core/Pawn"
 import { AnimatedSpriteModule } from "@PawnBox/Modules/Container/AnimatedSpriteModule"
-import { PawnModule } from "@PawnBox/Modules/Main/PawnModule"
+import { PawnModule, PawnModuleData } from "@PawnBox/Modules/Main/PawnModule"
 import { AnimatedSprite, FrameObject, Resource, Spritesheet, Texture } from "pixi.js"
 
-export interface AnimatorData {
+export interface AnimationData extends PawnModuleData {
     textures: Texture<Resource>[] | FrameObject[]
     speed: number
 }
 
-export class AnimatorModule extends PawnModule {
+export interface AnimatorData extends PawnModuleData {
+    animation?: AnimationData
+}
+
+export class AnimatorModule extends PawnModule<AnimatorData> {
     private animatedSprite: AnimatedSprite
-    private animations: Map<string, AnimatorData> = new Map<string, AnimatorData>()
+    private animations: Map<string, AnimationData> = new Map<string, AnimationData>()
     public static readonly DEFAULT_ANIMATION_NAME: string = "default"
 
     public override OnStart(): void {
         this.animatedSprite = this.pawn.GetModule(AnimatedSpriteModule).animatedSprite
     }
 
-    public GetAnimationData(name: string): AnimatorData | undefined {
-        return this.animations.get(name)
+    public GetAnimationData(name: string): AnimationData {
+        return this.animations.get(name)!
     }
 
-    public AddAnimationData(name: string, data: AnimatorData): void {
+    public AddAnimationData(name: string, data: AnimationData): void {
         this.animations.set(name, data)
     }
 
@@ -39,7 +43,7 @@ export class AnimatorModule extends PawnModule {
     }
 
     public PlayAnimation(name: string): void {
-        const data: AnimatorData | undefined = this.animations.get(name)
+        const data: AnimationData = this.GetAnimationData(name)
         if (data == null) {
             console.error(`GameObject "${this.pawn.name}" Animator doesn't have "${name}" AnimationData`)
             return
@@ -49,9 +53,10 @@ export class AnimatorModule extends PawnModule {
         this.animatedSprite.play()
     }
 
-    constructor(owner: Pawn, animationData?: AnimatorData) {
-        super(owner)
+    constructor(owner: Pawn, animatorData: AnimatorData) {
+        super(owner, animatorData)
 
+        const animationData: AnimationData | undefined = animatorData.animation
         if (animationData != null) {
             this.AddAnimationData(AnimatorModule.DEFAULT_ANIMATION_NAME, animationData)
             this.PlayAnimation(AnimatorModule.DEFAULT_ANIMATION_NAME)

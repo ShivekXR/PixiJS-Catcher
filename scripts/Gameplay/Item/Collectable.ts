@@ -1,8 +1,12 @@
 import "@pixi/math-extras"
-import { PawnEvent, Pawn, PawnModule } from "PawnBox"
+import { PawnEvent, Pawn, PawnModule, PawnModuleData } from "PawnBox"
 import { ObservablePoint, Point } from "pixi.js"
 
-export class Collectable extends PawnModule<Pawn> {
+export interface CollectableData extends PawnModuleData {
+    collector?: Pawn
+}
+
+export class Collectable extends PawnModule<CollectableData> {
     private static readonly COLLECT_DISTANCE_SQR = 600
 
     private _collectorPosition: ObservablePoint
@@ -21,8 +25,9 @@ export class Collectable extends PawnModule<Pawn> {
         }
     }
 
-    constructor(owner: Pawn, collector?: Pawn) {
-        super(owner)
+    constructor(owner: Pawn, data: CollectableData) {
+        super(owner, data)
+        const collector = data?.collector
         if(collector != null) {
             this.collectorPosition = collector.transform.position
         }

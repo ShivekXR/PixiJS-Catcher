@@ -1,8 +1,8 @@
 import { Pawn } from "@PawnBox/Core/Pawn"
-import { PawnModule } from "@PawnBox/Modules/Main/PawnModule"
+import { PawnModule, PawnModuleData } from "@PawnBox/Modules/Main/PawnModule"
 import { Container, IPointData } from "pixi.js"
 
-export interface ContainerData {
+export interface ContainerData extends PawnModuleData {
     name?: string
     position?: IPointData
     scale?: IPointData
@@ -13,8 +13,8 @@ export interface ContainerData {
 export abstract class PawnContainerModule<Base extends Container> extends PawnModule<ContainerData> {
     protected _container: Base
 
-    constructor(owner: Pawn, container: Base, data?: ContainerData) {
-        super(owner)
+    constructor(owner: Pawn, container: Base, data: ContainerData) {
+        super(owner, data)
         this._container = container
 
         container.name = data?.name ?? ""

@@ -13,7 +13,7 @@ export class SpriteModule extends BaseContainerModule<Sprite> {
         return this._container
     }
 
-    constructor(owner: Pawn, data?: SpriteData) {
+    constructor(owner: Pawn, data: SpriteData) {
         super(owner, new Sprite(data?.texture), data)
         this.sprite.name ||= "SpriteModule"
         this.sprite.anchor.set(data?.anchor?.x ?? 0.5, data?.anchor?.y ?? 0.5)

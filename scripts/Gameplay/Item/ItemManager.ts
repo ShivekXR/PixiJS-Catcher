@@ -67,7 +67,7 @@ export class ItemManager extends PawnModule {
         item.AddModule(Drop)
         const breakOnGround: BreakOnGround = item.AddModule(BreakOnGround)
         breakOnGround.broken.Subscribe(this.OnItemBreak)
-        const collectable: Collectable = item.AddModule(Collectable, Game.playerObject)
+        const collectable: Collectable = item.AddModule(Collectable, { collector: Game.playerObject })
         collectable.collected.Subscribe(this.OnItemCollected)
         item.active = true
 
