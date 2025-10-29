@@ -2,6 +2,7 @@ import { Pawn } from "@PawnBox/Core/Pawn"
 import { PawnEvent, PawnEventData, PawnEventHandler } from "@PawnBox/Core/PawnEvent"
 import { Container } from "pixi.js"
 
+// TODO: Add OnEnable and OnDisable
 export abstract class PawnModule<Data = void> {
     public static readonly UNIQUE: boolean = false
 
@@ -22,15 +23,15 @@ export abstract class PawnModule<Data = void> {
                 this.OnStart()
                 this._started = true
             } else {
-                this.pawn.Activated.Subscribe(this._OnPawnActivated)
+                this.pawn._PawnActivated.Subscribe(this._OnPawnActivated)
             }
         }
 
         if (this.OnUpdate != null) {
-            this.pawn.ModulesUpdate.Subscribe(this._OnPawnUpdate)
+            this.pawn._PawnUpdate.Subscribe(this._OnPawnUpdate)
         }
 
-        this.pawn.Destroyed.Subscribe(this._OnDestroy)
+        this.pawn._PawnModulesRemoved.Subscribe(this._OnPawnDestroyed)
     }
 
     private _started: boolean = false
@@ -38,40 +39,33 @@ export abstract class PawnModule<Data = void> {
     private _OnPawnActivated: PawnEventHandler = () => {
         this.OnStart!()
         this._started = true
-        this.pawn.Activated.Unsubscribe(this._OnPawnActivated)
+        this.pawn._PawnActivated.Unsubscribe(this._OnPawnActivated)
     }
-
-    /*
-    protected OnEnable?(): void
-    private _OnEnable: PawnEventHandler = () => {
-        this.OnEnable?.()
-    }
-    
-    protected OnDisable?(): void
-    private _OnDisable: PawnEventHandler = () => {
-        this.OnEnable?.()
-    }
-    */
 
     protected OnUpdate?(): void
     private _OnPawnUpdate: PawnEventHandler = () => {
         this.OnUpdate!()
     }
 
-    public Destroyed: PawnEvent<PawnEventData<PawnModule>> = new PawnEvent<PawnEventData<PawnModule>>(this)
-    private _OnDestroy: PawnEventHandler = () => {
-        this.Destroy()
-    }
     protected OnDestroy?(): void
-    public Destroy(): void {
+    private _OnPawnDestroyed: PawnEventHandler = () => {
+        this.SelfDestroy()
+    }
+    private SelfDestroy(): void {
         if (this.OnStart != null && !this._started) {
-            this.pawn.Activated.Unsubscribe(this._OnPawnActivated)
+            this.pawn._PawnActivated.Unsubscribe(this._OnPawnActivated)
         }
         if (this.OnUpdate != null) {
-            this.pawn.ModulesUpdate.Unsubscribe(this._OnPawnUpdate)
+            this.pawn._PawnUpdate.Unsubscribe(this._OnPawnUpdate)
         }
-        this.pawn.Destroyed.Unsubscribe(this._OnDestroy)
+        this.pawn._PawnModulesRemoved.Unsubscribe(this._OnPawnDestroyed)
         this.OnDestroy?.()
-        this.Destroyed.Dispatch()
+    }
+
+    public _ModuleDestroyed: PawnEvent<PawnEventData<PawnModule>> = new PawnEvent<PawnEventData<PawnModule>>(this)
+    public Destroy(): void {
+        this.SelfDestroy()
+        this._ModuleDestroyed.Dispatch()
+        this._ModuleDestroyed.UnsubscribeAll()
     }
 }

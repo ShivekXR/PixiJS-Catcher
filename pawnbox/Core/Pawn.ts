@@ -5,8 +5,10 @@ import { PawnModule } from "@PawnBox/Modules/Main/PawnModule"
 import { TransformModule } from "@PawnBox/Modules/Main/TransformModule"
 import { Container } from "pixi.js"
 
-// TODO: Add optional array of pawn modules
-// TODO: Add optional started param
+// TODO: Add optional pawn modules array
+// TODO: Add optional active param:
+//       - active == null && modules non empty: auto start after adding initial modules
+//       - active == null && modules empty: no auto start
 export interface PawnData extends ContainerData {
     parent?: Pawn
 }
@@ -45,7 +47,7 @@ export class Pawn {
         }
             
         const module: Module = new PawnModuleClass(this, data)
-        module.Destroyed.Subscribe(this.OnModuleDestroyed)
+        module._ModuleDestroyed.Subscribe(this.OnModuleDestroyed)
         this.modules.push(module)
         return module
     }
@@ -93,19 +95,24 @@ export class Pawn {
             return
         }
         this.RemoveModule(data.source!)
-        //data.source.Destroyed.Unsubscribe(this.OnModuleDestroyed)
     }
 
     private RemoveModule<Module extends PawnModule>(module: Module): void {
-        const moduleIndex: number = this.modules.indexOf(module)
-        if (moduleIndex < 0) {
+        const moduleIndexToRemove: number = this.modules.indexOf(module)
+        if (moduleIndexToRemove < 0) {
             console.error(`Couldn't find "${module.constructor.name}" Module in "${this.name}" Pawn`)
             return
         }
-        //this.modules.splice()
+        this.modules.splice(moduleIndexToRemove, 1)
     }
 
-    public Activated: PawnEvent = new PawnEvent()
+    private RemoveAllModules(): void {
+        this._PawnModulesRemoved.Dispatch()
+        this._PawnModulesRemoved.UnsubscribeAll()
+        this.modules = []
+    }
+
+    public _PawnActivated: PawnEvent = new PawnEvent() // TODO: Toss into data, make private and add <>
     private _active: boolean = false
     public get active(): boolean {
         return this._active
@@ -113,24 +120,23 @@ export class Pawn {
     public set active(value: boolean) {
         this._active = value
 
-        if (this._active == false) {
+        if (this.active == false) {
             return
         }
-        this.Activated.Dispatch()
+        this._PawnActivated.Dispatch()
     }
 
-    public ModulesUpdate: PawnEvent = new PawnEvent()
+    public _PawnUpdate: PawnEvent = new PawnEvent() // TODO: Make private and add <>
     public Update(): void {
         if (!this._active) {
             return
         }
-        this.ModulesUpdate.Dispatch()
+        this._PawnUpdate.Dispatch()
     }
 
-    public Destroyed: PawnEvent = new PawnEvent()
+    public _PawnModulesRemoved: PawnEvent = new PawnEvent() // TODO: Make private and add <>
     public Destroy(): void {
-        this.Destroyed.Dispatch()
-        this.modules = []
+        this.RemoveAllModules()
         PawnManager.Remove(this)
     }
 }
