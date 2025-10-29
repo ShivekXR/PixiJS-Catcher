@@ -5,7 +5,9 @@ import { Container } from "pixi.js"
 import Game from "@Scripts/Game"; // TODO:
 
 export class TransformModule extends PawnContainerModule<Container> {
-    public get transform(): Container {
+    public static override readonly UNIQUE: boolean = true
+
+    public override get transform(): Container {
         return this._container
     }
     

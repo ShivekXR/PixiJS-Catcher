@@ -8,7 +8,7 @@ export class PawnManager {
         return [...this._gameObjects]
     }
 
-    public static Add(gameObject: Pawn): void {
+    public static Register(gameObject: Pawn): void {
         this._gameObjects.push(gameObject)
     }
 

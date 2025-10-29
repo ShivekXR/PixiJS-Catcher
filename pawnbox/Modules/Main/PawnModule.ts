@@ -1,38 +1,77 @@
 import { Pawn } from "@PawnBox/Core/Pawn"
+import { PawnEvent, PawnEventData, PawnEventHandler } from "@PawnBox/Core/PawnEvent"
 import { Container } from "pixi.js"
 
-// TODO: Make component system optionally unique
-// GameObject should not have multiple transforms or renderers
-
 export abstract class PawnModule<Data = void> {
+    public static readonly UNIQUE: boolean = false
+
     private _pawn: Pawn
     public get pawn(): Pawn {
         return this._pawn
     }
 
-    protected get mainContainer(): Container {
+    protected get transform(): Container {
         return this.pawn.transform
     }
 
     constructor(owner: Pawn, _data?: Data) {
         this._pawn = owner
+
+        if (this.OnStart != null) {
+            if (this.pawn.active) {
+                this.OnStart()
+                this._started = true
+            } else {
+                this.pawn.Activated.Subscribe(this._OnPawnActivated)
+            }
+        }
+
+        if (this.OnUpdate != null) {
+            this.pawn.ModulesUpdate.Subscribe(this._OnPawnUpdate)
+        }
+
+        this.pawn.Destroyed.Subscribe(this._OnDestroy)
     }
 
     private _started: boolean = false
-    public _Start(): void {
-        if (this._started) {
-            return
-        }
+    protected OnStart?(): void
+    private _OnPawnActivated: PawnEventHandler = () => {
+        this.OnStart!()
         this._started = true
-        this.Start?.()
+        this.pawn.Activated.Unsubscribe(this._OnPawnActivated)
     }
-    public Start?(): void // TODO: should be protected
-    public Update?(): void // TODO: should be protected
-    public OnDestroy?(): void // TODO: should be protected
 
+    /*
+    protected OnEnable?(): void
+    private _OnEnable: PawnEventHandler = () => {
+        this.OnEnable?.()
+    }
+    
+    protected OnDisable?(): void
+    private _OnDisable: PawnEventHandler = () => {
+        this.OnEnable?.()
+    }
+    */
+
+    protected OnUpdate?(): void
+    private _OnPawnUpdate: PawnEventHandler = () => {
+        this.OnUpdate!()
+    }
+
+    public Destroyed: PawnEvent<PawnEventData<PawnModule>> = new PawnEvent<PawnEventData<PawnModule>>(this)
+    private _OnDestroy: PawnEventHandler = () => {
+        this.Destroy()
+    }
+    protected OnDestroy?(): void
     public Destroy(): void {
-        // check if destroyed -> return
-        // subscribe / add to the destroy list and wait
-        // the list will call OnDestroy and remove the component from the object
+        if (this.OnStart != null && !this._started) {
+            this.pawn.Activated.Unsubscribe(this._OnPawnActivated)
+        }
+        if (this.OnUpdate != null) {
+            this.pawn.ModulesUpdate.Unsubscribe(this._OnPawnUpdate)
+        }
+        this.pawn.Destroyed.Unsubscribe(this._OnDestroy)
+        this.OnDestroy?.()
+        this.Destroyed.Dispatch()
     }
 }
