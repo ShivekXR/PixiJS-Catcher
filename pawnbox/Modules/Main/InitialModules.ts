@@ -1,21 +1,21 @@
 import { PawnModule, PawnModuleConstructor, PawnModuleData } from "@PawnBox/Modules/Main/PawnModule"
 
-export interface InitialModuleData<
+export interface InitialModule<
     Module extends PawnModule<Data> = PawnModule,
     Data extends PawnModuleData = PawnModuleData> {
     PawnModuleClass: PawnModuleConstructor<Module, Data>,
-    data: Data
+    moduleData: Data
 }
 
 export function InitialModule<Module extends PawnModule<Data> = PawnModule, Data extends PawnModuleData = PawnModuleData>(
     PawnModuleClass: PawnModuleConstructor<Module, Data>,
-    data?: Data
-): InitialModuleData<Module, Data> {
-    data ??= {} as Data
+    moduleData?: Data
+): InitialModule<Module, Data> {
+    moduleData ??= {} as Data
     return {
         PawnModuleClass: PawnModuleClass,
-        data: data
+        moduleData: moduleData
     }
 }
 
-export type InitialModules = InitialModuleData[]
+export type InitialModules = InitialModule[]

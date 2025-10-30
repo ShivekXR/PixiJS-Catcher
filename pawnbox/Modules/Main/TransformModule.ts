@@ -10,9 +10,9 @@ export class TransformModule extends PawnContainerModule<Container> {
     public override get transform(): Container {
         return this._container
     }
-    
-    constructor(owner: Pawn, data: PawnData) {
-        super(owner, new Container(), data)
+
+    constructor(owner: Pawn, pawnData: PawnData) {
+        super(owner, new Container(), pawnData)
         this.transform.name ||= "Pawn"
         this.transform.setParent(Game.root) // TODO: Fix
     }

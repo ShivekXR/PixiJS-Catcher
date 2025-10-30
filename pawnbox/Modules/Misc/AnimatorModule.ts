@@ -25,8 +25,8 @@ export class AnimatorModule extends PawnModule<AnimatorData> {
         return this.animations.get(name)!
     }
 
-    public AddAnimationData(name: string, data: AnimationData): void {
-        this.animations.set(name, data)
+    public AddAnimationData(name: string, animationData: AnimationData): void {
+        this.animations.set(name, animationData)
     }
 
     public LoadAnimationSheet(sheet: Spritesheet, defaultSpeed = 1): void {
@@ -43,13 +43,13 @@ export class AnimatorModule extends PawnModule<AnimatorData> {
     }
 
     public PlayAnimation(name: string): void {
-        const data: AnimationData = this.GetAnimationData(name)
-        if (data == null) {
+        const animationData: AnimationData = this.GetAnimationData(name)
+        if (animationData == null) {
             console.error(`GameObject "${this.pawn.name}" Animator doesn't have "${name}" AnimationData`)
             return
         }
-        this.animatedSprite.textures = data.textures
-        this.animatedSprite.animationSpeed = data.speed
+        this.animatedSprite.textures = animationData.textures
+        this.animatedSprite.animationSpeed = animationData.speed
         this.animatedSprite.play()
     }
 

@@ -13,15 +13,15 @@ export interface ContainerData extends PawnModuleData {
 export abstract class PawnContainerModule<Base extends Container> extends PawnModule<ContainerData> {
     protected _container: Base
 
-    constructor(owner: Pawn, container: Base, data: ContainerData) {
-        super(owner, data)
+    constructor(owner: Pawn, container: Base, containerData: ContainerData) {
+        super(owner, containerData)
         this._container = container
 
-        container.name = data?.name ?? ""
-        container.position = data?.position ?? { x: 0, y: 0 }
-        container.scale = data?.scale ?? { x: 1, y: 1 }
-        container.rotation = data?.rotation ?? 0
-        container.pivot = data?.pivot ?? { x: 0, y: 0 }
+        container.name = containerData?.name ?? ""
+        container.position = containerData?.position ?? { x: 0, y: 0 }
+        container.scale = containerData?.scale ?? { x: 1, y: 1 }
+        container.rotation = containerData?.rotation ?? 0
+        container.pivot = containerData?.pivot ?? { x: 0, y: 0 }
     }
 
     public override OnDestroy(): void {

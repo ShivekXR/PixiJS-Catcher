@@ -2,12 +2,13 @@ import { Pawn } from "@PawnBox/Core/Pawn"
 import { PawnEvent, PawnEventData, PawnEventHandler } from "@PawnBox/Core/PawnEvent"
 import { Container } from "pixi.js"
 
-export type PawnModuleConstructor<Module extends PawnModule<Data> = PawnModule, Data extends PawnModuleData = PawnModuleData> = new (owner: Pawn, data: Data) => Module
+export type PawnModuleConstructor<Module extends PawnModule<Data> = PawnModule, Data extends PawnModuleData = PawnModuleData> = new (owner: Pawn, moduleData: Data) => Module
 
 export interface PawnModuleData {
     readonly _PawnActivated?: PawnEvent
     readonly _PawnUpdate?: PawnEvent
     readonly _PawnModulesRemoved?: PawnEvent
+    readonly _OnModuleDestroyed?: PawnEventHandler<PawnEventData<PawnModule>>
 }
 
 // TODO: Add OnEnable and OnDisable
@@ -23,7 +24,7 @@ export abstract class PawnModule<Data extends PawnModuleData = PawnModuleData> {
         return this.pawn.transform
     }
 
-    constructor(owner: Pawn, data: Data) {
+    constructor(owner: Pawn, moduleData: Data) {
         this._pawn = owner
 
         if (this.OnStart != null) {
@@ -31,17 +32,18 @@ export abstract class PawnModule<Data extends PawnModuleData = PawnModuleData> {
                 this.OnStart()
                 this._started = true
             } else {
-                this._PawnActivated = data._PawnActivated!
+                this._PawnActivated = moduleData._PawnActivated!
                 this._PawnActivated.Subscribe(this._OnPawnActivated)
             }
         }
 
         if (this.OnUpdate != null) {
-            this._PawnUpdate = data._PawnUpdate!
+            this._PawnUpdate = moduleData._PawnUpdate!
             this._PawnUpdate.Subscribe(this._OnPawnUpdate)
         }
 
-        data._PawnModulesRemoved!.Subscribe(this._OnPawnDestroyed)
+        moduleData._PawnModulesRemoved!.Subscribe(this._OnPawnDestroyed)
+        this._ModuleDestroyed.Subscribe(moduleData._OnModuleDestroyed!)
     }
 
     private _PawnActivated: PawnEvent
@@ -73,7 +75,7 @@ export abstract class PawnModule<Data extends PawnModuleData = PawnModuleData> {
         this.OnDestroy?.()
     }
 
-    public _ModuleDestroyed: PawnEvent<PawnEventData<PawnModule>> = new PawnEvent<PawnEventData<PawnModule>>(this)
+    private _ModuleDestroyed: PawnEvent<PawnEventData<PawnModule>> = new PawnEvent<PawnEventData<PawnModule>>(this)
     public Destroy(): void {
         this.SelfDestroy()
         this._ModuleDestroyed.Dispatch()

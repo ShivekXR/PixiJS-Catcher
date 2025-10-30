@@ -2,7 +2,7 @@ export interface PawnEventData<Source = any> {
     source?: Source
 }
 
-export type PawnEventHandler<Data extends PawnEventData = PawnEventData> = (data: Data) => void
+export type PawnEventHandler<Data extends PawnEventData = PawnEventData> = (eventData: Data) => void
 
 // TODO: [0.2v] Check if implementing a linked data structure would benefit:
 // - It might allow elements being removed while traversing through the dispatch method
@@ -23,15 +23,15 @@ export class PawnEvent<Data extends PawnEventData<Source> = any, Source = any> {
         this.eventHandlers.push(eventHandler)
     }
 
-    public Dispatch(data?: Data): void {
-        data ??= {} as Data
-        data.source ??= this.source
+    public Dispatch(eventData?: Data): void {
+        eventData ??= {} as Data
+        eventData.source ??= this.source
 
         for (let eventHandler of this.eventHandlers) {
             if (eventHandler == null) {
                 continue
             }
-            eventHandler(data)
+            eventHandler(eventData)
         }
 
         if (!this.dirty) {
@@ -39,7 +39,7 @@ export class PawnEvent<Data extends PawnEventData<Source> = any, Source = any> {
         }
 
         // Some previous event handlers might got removed while traversing
-        // That's why the array is reconstructed
+        // That's why the array is being reconstructed
         const newEventHandlers: Array<PawnEventHandler<Data>> = new Array<PawnEventHandler<Data>>()
         for (let eventHandler of this.eventHandlers) {
             if (eventHandler == null) {

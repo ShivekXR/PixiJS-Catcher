@@ -6,8 +6,6 @@ import { PawnModule, PawnModuleConstructor, PawnModuleData } from "@PawnBox/Modu
 import { TransformModule } from "@PawnBox/Modules/Main/TransformModule"
 import { Container } from "pixi.js"
 
-// TODO: Rename "data" across all classes
-
 export interface PawnData extends ContainerData {
     readonly parent?: Pawn
     readonly initialModules?: InitialModules
@@ -30,26 +28,26 @@ export class Pawn {
         this.transform.name = value
     }
 
-    constructor(data?: PawnData) {
-        this._transform = this.AddModule(TransformModule, data).transform
+    constructor(pawnData?: PawnData) {
+        this._transform = this.AddModule(TransformModule, pawnData).transform
         PawnManager.Register(this)
 
-        if (data == null) {
+        if (pawnData == null) {
             return
         }
 
-        const initialModulesExist = data.initialModules != null
+        const initialModulesExist = pawnData.initialModules != null
         if (initialModulesExist) {
-            for (let moduleData of data.initialModules) {
-                this.AddModule(moduleData.PawnModuleClass, data)
+            for (let moduleData of pawnData.initialModules) {
+                this.AddModule(moduleData.PawnModuleClass, pawnData)
             }
         }
-        this.active = data.active ?? initialModulesExist
+        this.active = pawnData.active ?? initialModulesExist
     }
 
     public AddModule<Module extends PawnModule<Data>, Data extends PawnModuleData = PawnModuleData>(
         PawnModuleClass: PawnModuleConstructor<Module, Data>,
-        data?: Data
+        moduleData?: Data
     ): Module {
         // @ts-ignore TODO: Is there a clever way to get this static property without the ts-ignore?
         if (PawnModuleClass.UNIQUE) {
@@ -59,15 +57,15 @@ export class Pawn {
             }
         }
 
-        data ??= {} as Data
-        Object.assign(data, {
+        moduleData ??= {} as Data
+        Object.assign(moduleData, {
             _PawnActivated: this._PawnActivated,
             _PawnUpdate: this._PawnUpdate,
             _PawnModulesRemoved: this._PawnModulesRemoved,
+            _OnModuleDestroyed: this.OnModuleDestroyed
         } as Data)
 
-        const module: Module = new PawnModuleClass(this, data)
-        module._ModuleDestroyed.Subscribe(this.OnModuleDestroyed)
+        const module: Module = new PawnModuleClass(this, moduleData)
         this.modules.push(module)
         return module
     }
@@ -110,11 +108,8 @@ export class Pawn {
         return modules
     }
 
-    private OnModuleDestroyed: PawnEventHandler<PawnEventData<PawnModule>> = (data: PawnEventData<PawnModule>) => {
-        if (data.source == null) {
-            return
-        }
-        this.RemoveModule(data.source!)
+    private OnModuleDestroyed: PawnEventHandler<PawnEventData<PawnModule>> = (moduleDestroyedData: PawnEventData<PawnModule>) => {
+        this.RemoveModule(moduleDestroyedData.source!)
     }
 
     private RemoveModule<Module extends PawnModule>(module: Module): void {

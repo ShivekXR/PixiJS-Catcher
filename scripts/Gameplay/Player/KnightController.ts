@@ -6,8 +6,8 @@ export class KnightController extends PawnModule {
     private movement: MoveToClick
     private animations: KnightAnimations
 
-    private OnMoveDirectionChange: PawnEventHandler<MoveStateData> = (data: MoveStateData) => {
-        this.ChangeAnimation(data.moveState)
+    private OnMoveDirectionChange: PawnEventHandler<MoveStateData> = (moveStateData: MoveStateData) => {
+        this.ChangeAnimation(moveStateData.moveState)
     }
 
     private ChangeAnimation(state: MoveState): void {

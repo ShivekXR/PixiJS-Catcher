@@ -23,8 +23,8 @@ export class MoveToClick extends PawnModule {
 
     public moveDirectionChanged: PawnEvent<MoveStateData> = new PawnEvent(this)
 
-    private OnPointerClick: PawnEventHandler<PointerData> = (data: PointerData) => {
-        this.targetPositionX = data.pointerPosition.x
+    private OnPointerClick: PawnEventHandler<PointerData> = (pointerData: PointerData) => {
+        this.targetPositionX = pointerData.pointerPosition.x
     }
 
     public override OnStart(): void {
