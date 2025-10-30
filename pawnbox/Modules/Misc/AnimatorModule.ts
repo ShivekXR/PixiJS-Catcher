@@ -9,7 +9,7 @@ export interface AnimationData extends PawnModuleData {
 }
 
 export interface AnimatorData extends PawnModuleData {
-    animation?: AnimationData
+    readonly animation?: AnimationData
 }
 
 export class AnimatorModule extends PawnModule<AnimatorData> {

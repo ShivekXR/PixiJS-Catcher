@@ -2,10 +2,12 @@ import { Pawn } from "@PawnBox/Core/Pawn"
 import { PawnEvent, PawnEventData, PawnEventHandler } from "@PawnBox/Core/PawnEvent"
 import { Container } from "pixi.js"
 
+export type PawnModuleConstructor<Module extends PawnModule<Data> = PawnModule, Data extends PawnModuleData = PawnModuleData> = new (owner: Pawn, data: Data) => Module
+
 export interface PawnModuleData {
-    _PawnActivated?: PawnEvent
-    _PawnUpdate?: PawnEvent
-    _PawnModulesRemoved?: PawnEvent
+    readonly _PawnActivated?: PawnEvent
+    readonly _PawnUpdate?: PawnEvent
+    readonly _PawnModulesRemoved?: PawnEvent
 }
 
 // TODO: Add OnEnable and OnDisable

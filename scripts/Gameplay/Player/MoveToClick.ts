@@ -10,7 +10,7 @@ export enum MoveState {
 }
 
 export interface MoveStateData extends PawnEventData {
-    moveState: MoveState
+    readonly moveState: MoveState
 }
 
 export class MoveToClick extends PawnModule {

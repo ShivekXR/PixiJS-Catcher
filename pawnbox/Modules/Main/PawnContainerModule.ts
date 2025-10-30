@@ -3,11 +3,11 @@ import { PawnModule, PawnModuleData } from "@PawnBox/Modules/Main/PawnModule"
 import { Container, IPointData } from "pixi.js"
 
 export interface ContainerData extends PawnModuleData {
-    name?: string
-    position?: IPointData
-    scale?: IPointData
-    rotation?: number
-    pivot?: IPointData
+    readonly name?: string
+    readonly position?: IPointData
+    readonly scale?: IPointData
+    readonly rotation?: number
+    readonly pivot?: IPointData
 }
 
 export abstract class PawnContainerModule<Base extends Container> extends PawnModule<ContainerData> {

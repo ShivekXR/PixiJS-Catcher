@@ -2,7 +2,7 @@ import { PawnEvent, PawnEventData } from "PawnBox"
 import { IPointData } from "pixi.js"
 
 export interface PointerData extends PawnEventData {
-    pointerPosition: IPointData
+    readonly pointerPosition: IPointData
 }
 
 export class GlobalInput {

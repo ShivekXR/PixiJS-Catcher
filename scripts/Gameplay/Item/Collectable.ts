@@ -3,7 +3,7 @@ import { PawnEvent, Pawn, PawnModule, PawnModuleData } from "PawnBox"
 import { ObservablePoint, Point } from "pixi.js"
 
 export interface CollectableData extends PawnModuleData {
-    collector?: Pawn
+    readonly collector?: Pawn
 }
 
 export class Collectable extends PawnModule<CollectableData> {

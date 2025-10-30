@@ -4,8 +4,8 @@ import { ContainerData } from "@PawnBox/Modules/Main/PawnContainerModule"
 import { IPointData, Sprite, Texture } from "pixi.js"
 
 export interface SpriteData extends ContainerData {
-    texture?: Texture
-    anchor?: IPointData
+    readonly texture?: Texture
+    readonly anchor?: IPointData
 }
 
 export class SpriteModule extends BaseContainerModule<Sprite> {

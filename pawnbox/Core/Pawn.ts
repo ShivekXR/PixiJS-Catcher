@@ -1,17 +1,17 @@
 import { PawnEvent, PawnEventData, PawnEventHandler } from "@PawnBox/Core/PawnEvent"
 import { PawnManager } from "@PawnBox/Core/PawnManager"
+import { InitialModules } from "@PawnBox/Modules/Main/InitialModules"
 import { ContainerData } from "@PawnBox/Modules/Main/PawnContainerModule"
-import { PawnModule, PawnModuleData } from "@PawnBox/Modules/Main/PawnModule"
+import { PawnModule, PawnModuleConstructor, PawnModuleData } from "@PawnBox/Modules/Main/PawnModule"
 import { TransformModule } from "@PawnBox/Modules/Main/TransformModule"
 import { Container } from "pixi.js"
 
 // TODO: Rename "data" across all classes
-// TODO: Add optional pawn modules array
-// TODO: Add optional active param:
-//       - active == null && modules non empty: auto start after adding initial modules
-//       - active == null && modules empty: no auto start
+
 export interface PawnData extends ContainerData {
-    parent?: Pawn
+    readonly parent?: Pawn
+    readonly initialModules?: InitialModules
+    readonly active?: boolean
 }
 
 export class Pawn {
@@ -33,10 +33,22 @@ export class Pawn {
     constructor(data?: PawnData) {
         this._transform = this.AddModule(TransformModule, data).transform
         PawnManager.Register(this)
+
+        if (data == null) {
+            return
+        }
+
+        const initialModulesExist = data.initialModules != null
+        if (initialModulesExist) {
+            for (let moduleData of data.initialModules) {
+                this.AddModule(moduleData.PawnModuleClass, data)
+            }
+        }
+        this.active = data.active ?? initialModulesExist
     }
 
     public AddModule<Module extends PawnModule<Data>, Data extends PawnModuleData = PawnModuleData>(
-        PawnModuleClass: new (owner: Pawn, data: Data) => Module,
+        PawnModuleClass: PawnModuleConstructor<Module, Data>,
         data?: Data
     ): Module {
         // @ts-ignore TODO: Is there a clever way to get this static property without the ts-ignore?
@@ -48,9 +60,11 @@ export class Pawn {
         }
 
         data ??= {} as Data
-        data._PawnActivated = this._PawnActivated
-        data._PawnUpdate = this._PawnUpdate
-        data._PawnModulesRemoved = this._PawnModulesRemoved
+        Object.assign(data, {
+            _PawnActivated: this._PawnActivated,
+            _PawnUpdate: this._PawnUpdate,
+            _PawnModulesRemoved: this._PawnModulesRemoved,
+        } as Data)
 
         const module: Module = new PawnModuleClass(this, data)
         module._ModuleDestroyed.Subscribe(this.OnModuleDestroyed)
@@ -59,7 +73,7 @@ export class Pawn {
     }
 
     public HasModule<Module extends PawnModule<Data>, Data extends PawnModuleData = PawnModuleData>(
-        PawnModuleClass: new (owner: Pawn, data: Data) => Module
+        PawnModuleClass: PawnModuleConstructor<Module, Data>
     ): boolean {
         for (let module of this.modules) {
             if (module instanceof PawnModuleClass) {
@@ -70,7 +84,7 @@ export class Pawn {
     }
 
     public GetModule<Module extends PawnModule<Data>, Data extends PawnModuleData = PawnModuleData>(
-        PawnModuleClass: new (owner: Pawn, data: Data) => Module
+        PawnModuleClass: PawnModuleConstructor<Module, Data>
     ): Module {
         for (let module of this.modules) {
             if (module instanceof PawnModuleClass) {
@@ -82,7 +96,7 @@ export class Pawn {
     }
 
     public GetModules<Module extends PawnModule<Data>, Data extends PawnModuleData = PawnModuleData>(
-        PawnModuleClass: new (owner: Pawn, data: Data) => Module
+        PawnModuleClass: PawnModuleConstructor<Module, Data>
     ): Array<Module> {
         const modules: Array<Module> = new Array<Module>()
         for (let module of this.modules) {
