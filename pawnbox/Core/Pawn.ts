@@ -17,7 +17,7 @@ export class Pawn {
     private pawnHandlers: PawnManagerHandlers
 
     private _transform: Container
-    // TODO: [0.3v] Make the transform fully private and expose getters/setters only for important properties
+    // TODO: [0.2v] Make the transform (and only the transform) fully private; expose getters/setters for important properties
     public get transform(): Container {
         return this._transform
     }
@@ -49,11 +49,9 @@ export class Pawn {
     }
 
     public AddModule<Module extends PawnModule<Data>, Data extends PawnModuleData = PawnModuleData>(
-        PawnModuleClass: PawnModuleConstructor<Module, Data>,
+        PawnModuleClass: PawnModuleConstructor<Module, Data> & { UNIQUE?: boolean },
         moduleData?: Data
     ): Module {
-        // TODO: Is there a clever way to get this static property without the ts-ignore annotation?
-        // @ts-ignore
         if (PawnModuleClass.UNIQUE) {
             if (this.HasModule(PawnModuleClass)) {
                 console.error(`"${this.name}" Pawn already has an unique "${PawnModuleClass.name}" Module`)
