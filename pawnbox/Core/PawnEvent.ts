@@ -4,7 +4,7 @@ export interface PawnEventData<Source = any> {
 
 export type PawnEventHandler<Data extends PawnEventData = PawnEventData> = (eventData: Data) => void
 
-// TODO: [0.2v] Check if implementing a linked data structure would benefit:
+// TODO: [0.2v] Check if implementing a linked data structure with hash table would benefit:
 // - It might allow elements being removed while traversing through the dispatch method
 // - Random / best / worst performance tests, small and big samples
 // - The code would be cleaner

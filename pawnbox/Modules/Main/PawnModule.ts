@@ -11,7 +11,7 @@ export interface PawnModuleData {
     readonly _OnModuleDestroyed?: PawnEventHandler<PawnEventData<PawnModule>>
 }
 
-// TODO: Add OnEnable and OnDisable
+// TODO: Add OnEnable and OnDisable, and maybe rework this.started
 export abstract class PawnModule<Data extends PawnModuleData = PawnModuleData> {
     public static readonly UNIQUE: boolean = false
 
@@ -30,55 +30,55 @@ export abstract class PawnModule<Data extends PawnModuleData = PawnModuleData> {
         if (this.OnStart != null) {
             if (this.pawn.active) {
                 this.OnStart()
-                this._started = true
+                this.started = true
             } else {
-                this._PawnActivated = moduleData._PawnActivated!
-                this._PawnActivated.Subscribe(this._OnPawnActivated)
+                this.PawnActivated = moduleData._PawnActivated!
+                this.PawnActivated.Subscribe(this.OnPawnActivated)
             }
         }
 
         if (this.OnUpdate != null) {
-            this._PawnUpdate = moduleData._PawnUpdate!
-            this._PawnUpdate.Subscribe(this._OnPawnUpdate)
+            this.PawnUpdate = moduleData._PawnUpdate!
+            this.PawnUpdate.Subscribe(this.OnPawnUpdate)
         }
 
-        moduleData._PawnModulesRemoved!.Subscribe(this._OnPawnDestroyed)
-        this._ModuleDestroyed.Subscribe(moduleData._OnModuleDestroyed!)
+        moduleData._PawnModulesRemoved!.Subscribe(this.OnPawnDestroyed)
+        this.ModuleDestroyed.Subscribe(moduleData._OnModuleDestroyed!)
     }
 
-    private _PawnActivated: PawnEvent
-    private _started: boolean = false
+    private PawnActivated: PawnEvent
+    private started: boolean = false
     protected OnStart?(): void
-    private _OnPawnActivated: PawnEventHandler = () => {
+    private OnPawnActivated: PawnEventHandler = () => {
         this.OnStart!()
-        this._started = true
-        this._PawnActivated.Unsubscribe(this._OnPawnActivated)
+        this.started = true
+        this.PawnActivated.Unsubscribe(this.OnPawnActivated)
     }
 
-    private _PawnUpdate: PawnEvent
+    private PawnUpdate: PawnEvent
     protected OnUpdate?(): void
-    private _OnPawnUpdate: PawnEventHandler = () => {
+    private OnPawnUpdate: PawnEventHandler = () => {
         this.OnUpdate!()
     }
 
     protected OnDestroy?(): void
-    private _OnPawnDestroyed: PawnEventHandler = () => {
+    private OnPawnDestroyed: PawnEventHandler = () => {
         this.SelfDestroy()
     }
     private SelfDestroy(): void {
-        if (this._PawnActivated != null && !this._started) {
-            this._PawnActivated.Unsubscribe(this._OnPawnActivated)
+        if (this.PawnActivated != null && !this.started) {
+            this.PawnActivated.Unsubscribe(this.OnPawnActivated)
         }
         if (this.OnUpdate != null) {
-            this._PawnUpdate.Unsubscribe(this._OnPawnUpdate)
+            this.PawnUpdate.Unsubscribe(this.OnPawnUpdate)
         }
         this.OnDestroy?.()
     }
 
-    private _ModuleDestroyed: PawnEvent<PawnEventData<PawnModule>> = new PawnEvent<PawnEventData<PawnModule>>(this)
+    private ModuleDestroyed: PawnEvent<PawnEventData<PawnModule>> = new PawnEvent<PawnEventData<PawnModule>>(this)
     public Destroy(): void {
         this.SelfDestroy()
-        this._ModuleDestroyed.Dispatch()
-        this._ModuleDestroyed.UnsubscribeAll()
+        this.ModuleDestroyed.Dispatch()
+        this.ModuleDestroyed.UnsubscribeAll()
     }
 }

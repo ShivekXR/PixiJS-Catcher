@@ -45,7 +45,7 @@ export class AnimatorModule extends PawnModule<AnimatorData> {
     public PlayAnimation(name: string): void {
         const animationData: AnimationData = this.GetAnimationData(name)
         if (animationData == null) {
-            console.error(`GameObject "${this.pawn.name}" Animator doesn't have "${name}" AnimationData`)
+            console.error(`Pawn "${this.pawn.name}" Animator doesn't have "${name}" AnimationData`)
             return
         }
         this.animatedSprite.textures = animationData.textures
