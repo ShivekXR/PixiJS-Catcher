@@ -11,7 +11,7 @@ export interface PawnModuleData {
     readonly _OnModuleDestroyed?: PawnEventHandler<PawnEventData<PawnModule>>
 }
 
-// TODO: Add OnEnable and OnDisable, and maybe rework this.started
+// TODO: Add OnEnable and OnDisable, and maybe rework this.started during that time
 export abstract class PawnModule<Data extends PawnModuleData = PawnModuleData> {
     public static readonly UNIQUE: boolean = false
 

@@ -1,8 +1,8 @@
 import { ItemManager } from "@Scripts/Gameplay/Item/ItemManager"
 import { PlayerPawn } from "@Scripts/Gameplay/Player/PlayerPawn"
 import { GlobalInput } from "@Scripts/GlobalInput"
-import { PawnEventHandler, Pawn } from "PawnBox"
-import { Application, BaseTexture, Container, Rectangle, SCALE_MODES } from "pixi.js"
+import { PawnEventHandler, Pawn, PawnManager } from "PawnBox"
+import { Application, BaseTexture, Rectangle, SCALE_MODES } from "pixi.js"
 
 class Game {
     private static readonly START_LIVES: number = 10
@@ -17,10 +17,6 @@ class Game {
     private static _globalInput: GlobalInput
     public static get globalInput(): GlobalInput {
         return this._globalInput
-    }
-
-    public static get root(): Container {
-        return this._application.stage
     }
 
     public static get screen(): Rectangle {
@@ -43,6 +39,8 @@ class Game {
         // TODO: Somehow inject the line from webpack for development
         // @ts-expect-error
         globalThis.__PIXI_APP__ = this._application
+
+        PawnManager.Initialize(this._application.stage)
     }
 
     private static OnItemCollected: PawnEventHandler = () => {

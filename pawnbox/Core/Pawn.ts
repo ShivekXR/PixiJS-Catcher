@@ -17,7 +17,7 @@ export class Pawn {
     private pawnHandlers: PawnManagerHandlers
 
     private _transform: Container
-    // TODO: Make the transform fully private and expose getters/setters only for important properties
+    // TODO: [0.3v] Make the transform fully private and expose getters/setters only for important properties
     public get transform(): Container {
         return this._transform
     }
