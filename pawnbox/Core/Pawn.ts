@@ -52,7 +52,8 @@ export class Pawn {
         PawnModuleClass: PawnModuleConstructor<Module, Data>,
         moduleData?: Data
     ): Module {
-        // @ts-ignore TODO: Is there a clever way to get this static property without the ts-ignore?
+        // TODO: Is there a clever way to get this static property without the ts-ignore annotation?
+        // @ts-ignore
         if (PawnModuleClass.UNIQUE) {
             if (this.HasModule(PawnModuleClass)) {
                 console.error(`"${this.name}" Pawn already has an unique "${PawnModuleClass.name}" Module`)

@@ -40,6 +40,7 @@ class Game {
             backgroundColor: 0x00AAFF,
         })
 
+        // TODO: Somehow inject the line from webpack for development
         // @ts-expect-error
         globalThis.__PIXI_APP__ = this._application
     }

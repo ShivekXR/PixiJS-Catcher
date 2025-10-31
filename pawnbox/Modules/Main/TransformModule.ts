@@ -2,7 +2,7 @@ import { Pawn, PawnData } from "@PawnBox/Core/Pawn"
 import { PawnContainerModule } from "@PawnBox/Modules/Main/PawnContainerModule"
 import { Container } from "pixi.js"
 
-import Game from "@Scripts/Game"; // TODO:
+import Game from "@Scripts/Game" // FIXME: Use something like PawnManager.root instead
 
 export class TransformModule extends PawnContainerModule<Container> {
     public static override readonly UNIQUE: boolean = true
@@ -14,6 +14,6 @@ export class TransformModule extends PawnContainerModule<Container> {
     constructor(owner: Pawn, pawnData: PawnData) {
         super(owner, new Container(), pawnData)
         this.transform.name ||= "Pawn"
-        this.transform.setParent(Game.root) // TODO: Fix
+        this.transform.setParent(pawnData.parent?.transform ?? Game.root)
     }
 }
