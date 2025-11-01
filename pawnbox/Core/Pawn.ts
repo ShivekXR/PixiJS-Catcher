@@ -17,7 +17,8 @@ export class Pawn {
     private pawnHandlers: PawnManagerHandlers
 
     private _transform: Container
-    // TODO: [0.2v] Make the transform (and only the transform) fully private; expose getters/setters for important properties
+    // TODO: [0.1.0v] Stage Pawn + Parenting + Subscribe to new / unsubscribe from old: activated / deactivated / update
+    // TODO: [0.1.1v] Make the transform (and all containers?) fully private; expose getters/setters for important properties
     public get transform(): Container {
         return this._transform
     }
@@ -29,7 +30,7 @@ export class Pawn {
         this.transform.name = value
     }
 
-    constructor(pawnData?: PawnData) {
+    public constructor(pawnData?: PawnData) {
         this._transform = this.AddModule(TransformModule, pawnData).transform
 
         if (pawnData != null) {
@@ -62,9 +63,10 @@ export class Pawn {
         moduleData ??= {} as Data
         Object.assign(moduleData, {
             _PawnActivated: this.PawnActivated,
+            _PawnDeactivated: this.PawnDeactivated,
             _PawnUpdate: this.PawnUpdate,
             _PawnModulesRemoved: this.PawnModulesRemoved,
-            _OnModuleDestroyed: this.OnModuleDestroyed
+            _PawnOnModuleDestroyed: this.OnModuleDestroyed
         } as Data)
 
         const module: Module = new PawnModuleClass(this, moduleData)
@@ -130,21 +132,26 @@ export class Pawn {
     }
 
     private PawnActivated: PawnEvent<PawnEventData<Pawn>> = new PawnEvent<PawnEventData<Pawn>>()
+    private PawnDeactivated: PawnEvent<PawnEventData<Pawn>> = new PawnEvent<PawnEventData<Pawn>>()
     private _active: boolean = false
     public get active(): boolean {
         return this._active
     }
     public set active(value: boolean) {
-        this._active = value
-
-        if (this.active == false) {
+        if(this.active == value) {
             return
         }
-        this.PawnActivated.Dispatch()
+        this._active = value
+
+        if (this.active) {
+            this.PawnActivated.Dispatch()
+        } else {
+            this.PawnDeactivated.Dispatch()
+        }
     }
 
     private PawnUpdate: PawnEvent<PawnEventData<Pawn>> = new PawnEvent<PawnEventData<Pawn>>()
-    private OnPawnManagerUpdate: PawnEventHandler<PawnEventData<null>> = () => {
+    private OnPawnManagerUpdate: PawnEventHandler<PawnEventData<void>> = () => {
         if (!this.active) {
             return
         }

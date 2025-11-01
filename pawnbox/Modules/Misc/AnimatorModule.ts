@@ -53,7 +53,7 @@ export class AnimatorModule extends PawnModule<AnimatorData> {
         this.animatedSprite.play()
     }
 
-    constructor(owner: Pawn, animatorData: AnimatorData) {
+    public constructor(owner: Pawn, animatorData: AnimatorData) {
         super(owner, animatorData)
 
         const animationData: AnimationData | undefined = animatorData.animation

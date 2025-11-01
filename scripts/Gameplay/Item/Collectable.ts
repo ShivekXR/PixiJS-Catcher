@@ -25,7 +25,7 @@ export class Collectable extends PawnModule<CollectableData> {
         }
     }
 
-    constructor(owner: Pawn, collectableData: CollectableData) {
+    public constructor(owner: Pawn, collectableData: CollectableData) {
         super(owner, collectableData)
         const collector = collectableData?.collector
         if(collector != null) {

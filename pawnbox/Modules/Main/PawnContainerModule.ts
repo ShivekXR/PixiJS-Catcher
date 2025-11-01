@@ -13,7 +13,7 @@ export interface ContainerData extends PawnModuleData {
 export abstract class PawnContainerModule<Base extends Container> extends PawnModule<ContainerData> {
     protected _container: Base
 
-    constructor(owner: Pawn, container: Base, containerData: ContainerData) {
+    public constructor(owner: Pawn, container: Base, containerData: ContainerData) {
         super(owner, containerData)
         this._container = container
 

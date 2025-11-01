@@ -17,7 +17,7 @@ export class GlobalInput {
         })
     }
 
-    constructor(view: HTMLCanvasElement) {
+    public constructor(view: HTMLCanvasElement) {
         view.addEventListener("click", this.OnCanvasClick)
     }
 }

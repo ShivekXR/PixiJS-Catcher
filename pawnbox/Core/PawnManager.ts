@@ -1,8 +1,8 @@
-import { PawnEvent, PawnEventHandler } from "@PawnBox/Core/PawnEvent"
+import { PawnEvent, PawnEventData, PawnEventHandler } from "@PawnBox/Core/PawnEvent"
 import { Container, Ticker } from "pixi.js"
 
 export interface PawnManagerHandlers {
-    update: PawnEventHandler
+    update: PawnEventHandler<PawnEventData<void>>
 }
 
 export class PawnManager {
@@ -13,7 +13,7 @@ export class PawnManager {
         Ticker.shared.add(() => PawnManager.Update())
     }
 
-    private static PawnsUpdate: PawnEvent = new PawnEvent()
+    private static PawnsUpdate: PawnEvent<PawnEventData<void>> = new PawnEvent<PawnEventData<void>>()
     private static Update(): void {
         PawnManager.PawnsUpdate.Dispatch()
     }

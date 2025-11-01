@@ -14,7 +14,7 @@ export class AnimatedSpriteModule extends BaseContainerModule<AnimatedSprite> {
         return this._container
     }
 
-    constructor(owner: Pawn, animatedSpritedata: AnimatedSpriteData) {
+    public constructor(owner: Pawn, animatedSpritedata: AnimatedSpriteData) {
         super(owner, new AnimatedSprite(animatedSpritedata?.textures ?? [Texture.EMPTY]), animatedSpritedata)
         this.animatedSprite.name ||= "AnimatedSpriteModule"
         this.animatedSprite.anchor.set(animatedSpritedata?.anchor?.x ?? 0.5, animatedSpritedata?.anchor?.y ?? 0.5)

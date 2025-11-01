@@ -10,7 +10,7 @@ export class TransformModule extends PawnContainerModule<Container> {
         return this._container
     }
 
-    constructor(owner: Pawn, pawnData: PawnData) {
+    public constructor(owner: Pawn, pawnData: PawnData) {
         super(owner, new Container(), pawnData)
         this.transform.name ||= "Pawn"
         this.transform.setParent(pawnData.parent?.transform ?? PawnManager.root)
