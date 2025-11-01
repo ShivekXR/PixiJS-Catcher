@@ -1,9 +1,9 @@
 import { PawnEvent, PawnEventData, PawnEventHandler } from "@PawnBox/Core/PawnEvent"
 import { PawnManager, PawnManagerHandlers } from "@PawnBox/Core/PawnManager"
+import { PawnModules } from "@PawnBox/Core/PawnModules"
 import { InitialModules } from "@PawnBox/Modules/Main/InitialModules"
 import { ContainerData } from "@PawnBox/Modules/Main/PawnContainerModule"
 import { PawnModule, PawnModuleConstructor, PawnModuleData } from "@PawnBox/Modules/Main/PawnModule"
-import { TransformModule } from "@PawnBox/Modules/Main/TransformModule"
 import { Container } from "pixi.js"
 
 export interface PawnData extends ContainerData {
@@ -13,14 +13,13 @@ export interface PawnData extends ContainerData {
 }
 
 export class Pawn {
-    private modules: Array<PawnModule> = new Array<PawnModule>()
+    private pawnModules: PawnModules
     private pawnHandlers: PawnManagerHandlers
 
-    private _transform: Container
     // TODO: [0.1.0v] Stage Pawn + Parenting + Subscribe to new / unsubscribe from old: activated / deactivated / update
     // TODO: [0.1.1v] Make the transform (and all containers?) fully private; expose getters/setters for important properties
     public get transform(): Container {
-        return this._transform
+        return this.pawnModules.transform
     }
 
     public get name(): string {
@@ -31,17 +30,15 @@ export class Pawn {
     }
 
     public constructor(pawnData?: PawnData) {
-        this._transform = this.AddModule(TransformModule, pawnData).transform
+        this.pawnModules = new PawnModules(this,
+            this.PawnActivated,
+            this.PawnDeactivated,
+            this.PawnUpdate,
+        )
 
-        if (pawnData != null) {
-            const initialModulesExist = pawnData.initialModules != null
-            if (initialModulesExist) {
-                for (let moduleData of pawnData.initialModules) {
-                    this.AddModule(moduleData.PawnModuleClass, pawnData)
-                }
-            }
-            this.active = pawnData.active ?? initialModulesExist
-        }
+        this.pawnModules.AddInitial(pawnData)
+
+        this.active = pawnData?.active ?? pawnData?.initialModules != null
 
         this.pawnHandlers = {
             update: this.OnPawnManagerUpdate
@@ -53,82 +50,29 @@ export class Pawn {
         PawnModuleClass: PawnModuleConstructor<Module, Data> & { UNIQUE?: boolean },
         moduleData?: Data
     ): Module {
-        if (PawnModuleClass.UNIQUE) {
-            if (this.HasModule(PawnModuleClass)) {
-                console.error(`"${this.name}" Pawn already has an unique "${PawnModuleClass.name}" Module`)
-                return undefined!
-            }
-        }
-
-        moduleData ??= {} as Data
-        Object.assign(moduleData, {
-            _PawnActivated: this.PawnActivated,
-            _PawnDeactivated: this.PawnDeactivated,
-            _PawnUpdate: this.PawnUpdate,
-            _PawnModulesRemoved: this.PawnModulesRemoved,
-            _PawnOnModuleDestroyed: this.OnModuleDestroyed
-        } as Data)
-
-        const module: Module = new PawnModuleClass(this, moduleData)
-        this.modules.push(module)
-        return module
+        return this.pawnModules.Add(PawnModuleClass, moduleData)
     }
 
     public HasModule<Module extends PawnModule<Data>, Data extends PawnModuleData = PawnModuleData>(
         PawnModuleClass: PawnModuleConstructor<Module, Data>
     ): boolean {
-        for (let module of this.modules) {
-            if (module instanceof PawnModuleClass) {
-                return true
-            }
-        }
-        return false
+        return this.pawnModules.Has(PawnModuleClass)
     }
 
     public GetModule<Module extends PawnModule<Data>, Data extends PawnModuleData = PawnModuleData>(
         PawnModuleClass: PawnModuleConstructor<Module, Data>
     ): Module {
-        for (let module of this.modules) {
-            if (module instanceof PawnModuleClass) {
-                return module
-            }
-        }
-        console.error(`"${this.name}" Pawn doesn't have any "${PawnModuleClass.name}" Module`)
-        return undefined!
+        return this.pawnModules.Get(PawnModuleClass)
     }
 
     public GetModules<Module extends PawnModule<Data>, Data extends PawnModuleData = PawnModuleData>(
         PawnModuleClass: PawnModuleConstructor<Module, Data>
     ): Array<Module> {
-        const modules: Array<Module> = new Array<Module>()
-        for (let module of this.modules) {
-            if (module instanceof PawnModuleClass) {
-                modules.push(module)
-            }
-        }
-        if (modules.length == 0) {
-            console.error(`"${this.name}" Pawn doesn't have any "${PawnModuleClass.name}" Module`)
-        }
-        return modules
+        return this.pawnModules.GetAllOfType(PawnModuleClass)
     }
 
-    private OnModuleDestroyed: PawnEventHandler<PawnEventData<PawnModule>> = (moduleDestroyedData: PawnEventData<PawnModule>) => {
-        this.RemoveModule(moduleDestroyedData.source!)
-    }
-
-    private RemoveModule<Module extends PawnModule>(module: Module): void {
-        const moduleIndexToRemove: number = this.modules.indexOf(module)
-        if (moduleIndexToRemove < 0) {
-            console.error(`Couldn't find "${module.constructor.name}" Module in "${this.name}" Pawn`)
-            return
-        }
-        this.modules.splice(moduleIndexToRemove, 1)
-    }
-
-    private RemoveAllModules(): void {
-        this.PawnModulesRemoved.Dispatch()
-        this.PawnModulesRemoved.UnsubscribeAll()
-        this.modules = []
+    public GetAllModules(): Array<PawnModule> {
+        return this.pawnModules.GetAll()
     }
 
     private PawnActivated: PawnEvent<PawnEventData<Pawn>> = new PawnEvent<PawnEventData<Pawn>>()
@@ -158,9 +102,9 @@ export class Pawn {
         this.PawnUpdate.Dispatch()
     }
 
-    private PawnModulesRemoved: PawnEvent<PawnEventData<Pawn>> = new PawnEvent<PawnEventData<Pawn>>()
+
     public Destroy(): void {
-        this.RemoveAllModules()
+        this.pawnModules.RemoveAll()
         PawnManager._UnregisterHandlers(this.pawnHandlers)
     }
 }
