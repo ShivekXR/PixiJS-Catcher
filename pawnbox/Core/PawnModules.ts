@@ -1,42 +1,47 @@
 import { Pawn, PawnData } from "@PawnBox/Core/Pawn"
 import { PawnEvent, PawnEventData, PawnEventHandler } from "@PawnBox/Core/PawnEvent"
-import { PawnModule, PawnModuleConstructor, PawnModuleData } from "@PawnBox/Modules/Main/PawnModule"
+import { PawnModule, PawnModuleData } from "@PawnBox/Modules/Main/PawnModule"
 import { TransformModule } from "@PawnBox/Modules/Main/TransformModule"
+
 import { Container } from "pixi.js"
 
+// #region Types
+export type PawnModuleConstructor<Module extends PawnModule<Data> = PawnModule, Data extends PawnModuleData = PawnModuleData>
+    = (new (owner: Pawn, moduleData: Data) => Module) & { UNIQUE?: boolean }
+
+export type PawnModulesReturnGeneric
+    = <Module extends PawnModule<Data> = PawnModule<PawnModuleData>, Data extends PawnModuleData = PawnModuleData>
+        (PawnModuleClass: PawnModuleConstructor<Module, Data>, moduleData?: Data) => Module
+
+export type PawnModulesReturnGenericArray
+    = <Module extends PawnModule<Data> = PawnModule<PawnModuleData>, Data extends PawnModuleData = PawnModuleData>
+        (PawnModuleClass: PawnModuleConstructor<Module, Data>, moduleData?: Data) => Array<Module>
+
+export type PawnModulesReturnType<Type>
+    = <Module extends PawnModule<Data> = PawnModule<PawnModuleData>, Data extends PawnModuleData = PawnModuleData>
+        (PawnModuleClass: PawnModuleConstructor<Module, Data>, moduleData?: Data) => Type
+
+export type ReturnModulesArray = () => Array<PawnModule>
+// #endregion
+
 export class PawnModules {
-    private pawn: Pawn
-    private modules: Array<PawnModule> = new Array<PawnModule>()
-    public _PawnModulesRemoved: PawnEvent<PawnEventData<Pawn>> = new PawnEvent<PawnEventData<Pawn>>()
+    // #region Main
+    private readonly pawn: Pawn
 
-    private _transform: Container
-    public get transform(): Container {
-        return this._transform
-    }
-
-    public constructor(
-        pawn: Pawn,
-    ) {
+    public constructor(pawn: Pawn) {
         this.pawn = pawn
     }
+    // #endregion
 
-    public AddInitial(pawnData?: PawnData) {
-        this._transform = this.Add(TransformModule, pawnData).transform
+    // #region Basic Management
+    private modules: Array<PawnModule> = new Array<PawnModule>()
 
-        if (pawnData?.initialModules == null) {
-            return
-        }
-        for (let moduleData of pawnData.initialModules) {
-            this.Add(moduleData.PawnModuleClass, pawnData)
-        }
-    }
-
-    public Add<Module extends PawnModule<Data>, Data extends PawnModuleData = PawnModuleData>(
-        PawnModuleClass: PawnModuleConstructor<Module, Data> & { UNIQUE?: boolean },
-        moduleData?: Data
-    ): Module {
+    public readonly _Add: PawnModulesReturnGeneric = <Module extends PawnModule<Data> = PawnModule, Data extends PawnModuleData = PawnModuleData>(
+        PawnModuleClass: PawnModuleConstructor<Module, Data>,
+        moduleData?: Data,
+    ) => {
         if (PawnModuleClass.UNIQUE) {
-            if (this.Has(PawnModuleClass)) {
+            if (this._Has(PawnModuleClass)) {
                 console.error(`"${this.pawn.name}" Pawn already has an unique "${PawnModuleClass.name}" Module`)
                 return undefined!
             }
@@ -51,9 +56,9 @@ export class PawnModules {
         return module
     }
 
-    public Has<Module extends PawnModule<Data>, Data extends PawnModuleData = PawnModuleData>(
-        PawnModuleClass: PawnModuleConstructor<Module, Data>
-    ): boolean {
+    public readonly _Has: PawnModulesReturnType<boolean> = <Module extends PawnModule<Data>, Data extends PawnModuleData = PawnModuleData>(
+        PawnModuleClass: PawnModuleConstructor<Module, Data>,
+    ) => {
         for (let module of this.modules) {
             if (module instanceof PawnModuleClass) {
                 return true
@@ -62,9 +67,9 @@ export class PawnModules {
         return false
     }
 
-    public Get<Module extends PawnModule<Data>, Data extends PawnModuleData = PawnModuleData>(
-        PawnModuleClass: PawnModuleConstructor<Module, Data>
-    ): Module {
+    public readonly _Get: PawnModulesReturnGeneric = <Module extends PawnModule<Data>, Data extends PawnModuleData = PawnModuleData>(
+        PawnModuleClass: PawnModuleConstructor<Module, Data>,
+    ) => {
         for (let module of this.modules) {
             if (module instanceof PawnModuleClass) {
                 return module
@@ -74,9 +79,9 @@ export class PawnModules {
         return undefined!
     }
 
-    public GetAllOfType<Module extends PawnModule<Data>, Data extends PawnModuleData = PawnModuleData>(
-        PawnModuleClass: PawnModuleConstructor<Module, Data>
-    ): Array<Module> {
+    public readonly _GetAllOfType: PawnModulesReturnGenericArray = <Module extends PawnModule<Data>, Data extends PawnModuleData = PawnModuleData>(
+        PawnModuleClass: PawnModuleConstructor<Module, Data>,
+    ) => {
         const modules: Array<Module> = new Array<Module>()
         for (let module of this.modules) {
             if (module instanceof PawnModuleClass) {
@@ -89,11 +94,43 @@ export class PawnModules {
         return modules
     }
 
-    public GetAll(): Array<PawnModule> {
+    public readonly _GetAll: ReturnModulesArray = () => {
         return this.modules
     }
+    // #endregion
 
-    private Remove<Module extends PawnModule>(module: Module): void {
+    // #region Initial
+    private _transform: Container
+    public get transform(): Container { return this._transform }
+
+    public AddInitial(pawnData?: PawnData) {
+        this._transform = this._Add(TransformModule, pawnData).transform
+
+        if (pawnData?.initialModules == null) {
+            return
+        }
+        for (let moduleData of pawnData.initialModules) {
+            this._Add(moduleData.PawnModuleClass, pawnData)
+        }
+    }
+    // #endregion
+
+    // #region Remove All
+    public readonly _PawnModulesRemoved: PawnEvent<PawnEventData<Pawn>> = new PawnEvent<PawnEventData<Pawn>>()
+
+    public _RemoveAll(): void {
+        this.modules = []
+        this._PawnModulesRemoved.Dispatch()
+        this._PawnModulesRemoved.UnsubscribeAll()
+    }
+    // #endregion
+
+    // #region On Module Destroyed
+    public _OnModuleDestroyed: PawnEventHandler<PawnEventData<PawnModule>> = (moduleDestroyedData: PawnEventData<PawnModule>) => {
+        this._Remove(moduleDestroyedData.source!)
+    }
+
+    private _Remove<Module extends PawnModule>(module: Module): void {
         const moduleIndexToRemove: number = this.modules.indexOf(module)
         if (moduleIndexToRemove < 0) {
             console.error(`Couldn't find "${module.constructor.name}" Module in "${this.pawn.name}" Pawn`)
@@ -101,14 +138,5 @@ export class PawnModules {
         }
         this.modules.splice(moduleIndexToRemove, 1)
     }
-
-    public RemoveAll(): void {
-        this._PawnModulesRemoved.Dispatch()
-        this._PawnModulesRemoved.UnsubscribeAll()
-        this.modules = []
-    }
-
-    public _OnModuleDestroyed: PawnEventHandler<PawnEventData<PawnModule>> = (moduleDestroyedData: PawnEventData<PawnModule>) => {
-        this.Remove(moduleDestroyedData.source!)
-    }
+    // #endregion
 }

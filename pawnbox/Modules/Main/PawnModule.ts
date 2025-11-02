@@ -6,8 +6,6 @@ import { Container } from "pixi.js"
 
 // TODO: [0.1.0v] Poolable Module
 
-export type PawnModuleConstructor<Module extends PawnModule<Data> = PawnModule, Data extends PawnModuleData = PawnModuleData> = new (owner: Pawn, moduleData: Data) => Module
-
 export interface PawnModuleData {
 }
 
