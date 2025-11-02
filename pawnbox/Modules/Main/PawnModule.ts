@@ -1,5 +1,4 @@
 import { Pawn } from "@PawnBox/Core/Pawn"
-import { PawnEvent, PawnEventData, PawnEventHandler } from "@PawnBox/Core/PawnEvent"
 import { PawnModuleDestroy } from "@PawnBox/Modules/Main/PawnModuleDestroy"
 import { PawnModuleStart } from "@PawnBox/Modules/Main/PawnModuleStart"
 import { PawnModuleUpdate } from "@PawnBox/Modules/Main/PawnModuleUpdate"
@@ -10,14 +9,9 @@ import { Container } from "pixi.js"
 export type PawnModuleConstructor<Module extends PawnModule<Data> = PawnModule, Data extends PawnModuleData = PawnModuleData> = new (owner: Pawn, moduleData: Data) => Module
 
 export interface PawnModuleData {
-    readonly _PawnActivated?: PawnEvent
-    readonly _PawnUpdate?: PawnEvent
-    readonly _PawnModulesRemoved?: PawnEvent
-    readonly _PawnDeactivated?: PawnEvent
-    readonly _PawnOnModuleDestroyed?: PawnEventHandler<PawnEventData<PawnModule>>
 }
 
-// TODO: [0.1.0v] Add OnEnable and OnDisable, and maybe rework this.started during that time
+// TODO: [0.1.0v] Add OnEnable and OnDisable
 export abstract class PawnModule<Data extends PawnModuleData = PawnModuleData> {
     public static readonly UNIQUE: boolean = false
 
@@ -30,41 +24,25 @@ export abstract class PawnModule<Data extends PawnModuleData = PawnModuleData> {
         return this.pawn.transform
     }
 
-    public constructor(owner: Pawn, moduleData: Data) {
+    public constructor(owner: Pawn, moduleData: Data) { // FIXME: Put owner into moduleData
+        moduleData ??= {} as Data
         this._pawn = owner
 
-        this.moduleStart = new PawnModuleStart(
-            this,
-            this.OnStart,
-            moduleData._PawnActivated!
-        )
-
-        this.moduleUpdate = new PawnModuleUpdate(
-            this,
-            this.OnUpdate,
-            moduleData._PawnUpdate!
-        )
-        
-        this.moduleDestroy = new PawnModuleDestroy(
-            this,
-            this.OnDestroy,
-            moduleData._PawnModulesRemoved!,
-            moduleData._PawnOnModuleDestroyed!,
-            this.moduleStart,
-            this.moduleUpdate
-        )
+        this._moduleStart = new PawnModuleStart(this)
+        this._moduleUpdate = new PawnModuleUpdate(this)
+        this._moduleDestroy = new PawnModuleDestroy(this)
     }
 
-    private moduleStart: PawnModuleStart
-    protected OnStart?(): void
+    public _moduleStart: PawnModuleStart
+    public OnStart?(): void
 
-    private moduleUpdate: PawnModuleUpdate
-    protected OnUpdate?(): void
+    public _moduleUpdate: PawnModuleUpdate
+    public OnUpdate?(): void
 
-    private moduleDestroy: PawnModuleDestroy
-    protected OnDestroy?(): void
+    public _moduleDestroy: PawnModuleDestroy
+    public OnDestroy?(): void
 
     public Destroy(): void {
-        this.moduleDestroy.ForcedDestroy()
+        this._moduleDestroy.ForcedDestroy()
     }
 }

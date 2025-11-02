@@ -13,13 +13,13 @@ export interface PawnData extends ContainerData {
 }
 
 export class Pawn {
-    private pawnModules: PawnModules
+    public _pawnModules: PawnModules
     private pawnHandlers: PawnManagerHandlers
 
     // TODO: [0.1.0v] Stage Pawn + Parenting + Subscribe to new / unsubscribe from old: activated / deactivated / update
     // TODO: [0.1.1v] Make the transform (and all containers?) fully private; expose getters/setters for important properties
     public get transform(): Container {
-        return this.pawnModules.transform
+        return this._pawnModules.transform
     }
 
     public get name(): string {
@@ -30,18 +30,16 @@ export class Pawn {
     }
 
     public constructor(pawnData?: PawnData) {
-        this.pawnModules = new PawnModules(this,
-            this.PawnActivated,
-            this.PawnDeactivated,
-            this.PawnUpdate,
+        this._pawnModules = new PawnModules(this
+
         )
 
-        this.pawnModules.AddInitial(pawnData)
+        this._pawnModules.AddInitial(pawnData)
 
         this.active = pawnData?.active ?? pawnData?.initialModules != null
 
         this.pawnHandlers = {
-            update: this.OnPawnManagerUpdate
+            update: this._OnPawnManagerUpdate
         }
         PawnManager._RegisterHandlers(this.pawnHandlers)
     }
@@ -50,33 +48,33 @@ export class Pawn {
         PawnModuleClass: PawnModuleConstructor<Module, Data> & { UNIQUE?: boolean },
         moduleData?: Data
     ): Module {
-        return this.pawnModules.Add(PawnModuleClass, moduleData)
+        return this._pawnModules.Add(PawnModuleClass, moduleData)
     }
 
     public HasModule<Module extends PawnModule<Data>, Data extends PawnModuleData = PawnModuleData>(
         PawnModuleClass: PawnModuleConstructor<Module, Data>
     ): boolean {
-        return this.pawnModules.Has(PawnModuleClass)
+        return this._pawnModules.Has(PawnModuleClass)
     }
 
     public GetModule<Module extends PawnModule<Data>, Data extends PawnModuleData = PawnModuleData>(
         PawnModuleClass: PawnModuleConstructor<Module, Data>
     ): Module {
-        return this.pawnModules.Get(PawnModuleClass)
+        return this._pawnModules.Get(PawnModuleClass)
     }
 
     public GetModules<Module extends PawnModule<Data>, Data extends PawnModuleData = PawnModuleData>(
         PawnModuleClass: PawnModuleConstructor<Module, Data>
     ): Array<Module> {
-        return this.pawnModules.GetAllOfType(PawnModuleClass)
+        return this._pawnModules.GetAllOfType(PawnModuleClass)
     }
 
     public GetAllModules(): Array<PawnModule> {
-        return this.pawnModules.GetAll()
+        return this._pawnModules.GetAll()
     }
 
-    private PawnActivated: PawnEvent<PawnEventData<Pawn>> = new PawnEvent<PawnEventData<Pawn>>()
-    private PawnDeactivated: PawnEvent<PawnEventData<Pawn>> = new PawnEvent<PawnEventData<Pawn>>()
+    public _PawnActivated: PawnEvent<PawnEventData<Pawn>> = new PawnEvent<PawnEventData<Pawn>>()
+    public _PawnDeactivated: PawnEvent<PawnEventData<Pawn>> = new PawnEvent<PawnEventData<Pawn>>()
     private _active: boolean = false
     public get active(): boolean {
         return this._active
@@ -88,23 +86,23 @@ export class Pawn {
         this._active = value
 
         if (this.active) {
-            this.PawnActivated.Dispatch()
+            this._PawnActivated.Dispatch()
         } else {
-            this.PawnDeactivated.Dispatch()
+            this._PawnDeactivated.Dispatch()
         }
     }
 
-    private PawnUpdate: PawnEvent<PawnEventData<Pawn>> = new PawnEvent<PawnEventData<Pawn>>()
-    private OnPawnManagerUpdate: PawnEventHandler<PawnEventData<void>> = () => {
+    public _PawnUpdate: PawnEvent<PawnEventData<Pawn>> = new PawnEvent<PawnEventData<Pawn>>()
+    public _OnPawnManagerUpdate: PawnEventHandler<PawnEventData<void>> = () => {
         if (!this.active) {
             return
         }
-        this.PawnUpdate.Dispatch()
+        this._PawnUpdate.Dispatch()
     }
 
 
     public Destroy(): void {
-        this.pawnModules.RemoveAll()
+        this._pawnModules.RemoveAll()
         PawnManager._UnregisterHandlers(this.pawnHandlers)
     }
 }

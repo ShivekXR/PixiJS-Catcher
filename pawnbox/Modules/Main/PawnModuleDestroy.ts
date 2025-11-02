@@ -1,39 +1,30 @@
 import { PawnEvent, PawnEventData, PawnEventHandler } from "@PawnBox/Core/PawnEvent"
-import { PawnModule, PawnModuleData } from "@PawnBox/Modules/Main/PawnModule"
+import { PawnModule } from "@PawnBox/Modules/Main/PawnModule"
 import { PawnModuleStart } from "@PawnBox/Modules/Main/PawnModuleStart"
 import { PawnModuleUpdate } from "@PawnBox/Modules/Main/PawnModuleUpdate"
 
-type OnDestroy = (() => void) | undefined
-
 export class PawnModuleDestroy {
-    private ModuleOnDestroy: OnDestroy
-    private PawnModulesRemoved: PawnEvent
+    private ModuleOnDestroy: (() => void) | undefined
     private ModuleDestroyed: PawnEvent<PawnEventData<PawnModule>>
 
     private moduleStart: PawnModuleStart
     private moduleUpdate: PawnModuleUpdate
 
-    public constructor(
-        module: PawnModule,
-        ModuleOnDestroy: OnDestroy,
-        PawnModulesRemoved: PawnEvent,
-        PawnOnModuleDestroyed: PawnEventHandler<PawnEventData<PawnModule<PawnModuleData>>>,
-        moduleStart: PawnModuleStart,
-        moduleUpdate: PawnModuleUpdate,
-    ) {
-        this.ModuleOnDestroy = ModuleOnDestroy?.bind(module)
+    public constructor(module: PawnModule) {
+        this.ModuleOnDestroy = module.OnDestroy?.bind(module)
+        
+        const pawnModules = module.pawn._pawnModules
 
-        this.PawnModulesRemoved = PawnModulesRemoved
-        this.PawnModulesRemoved.Subscribe(this.OnPawnDestroyed)
+        pawnModules._PawnModulesRemoved.Subscribe(this.OnPawnModulesRemoved)
 
         this.ModuleDestroyed = new PawnEvent<PawnEventData<PawnModule>>(module)
-        this.ModuleDestroyed.Subscribe(PawnOnModuleDestroyed)
+        this.ModuleDestroyed.Subscribe(pawnModules._OnModuleDestroyed)
 
-        this.moduleStart = moduleStart
-        this.moduleUpdate = moduleUpdate
+        this.moduleStart = module._moduleStart
+        this.moduleUpdate = module._moduleUpdate
     }
 
-    private OnPawnDestroyed: PawnEventHandler = () => {
+    private OnPawnModulesRemoved: PawnEventHandler = () => {
         this.ModuleSelfDestroy()
     }
 

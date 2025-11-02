@@ -5,14 +5,9 @@ import { TransformModule } from "@PawnBox/Modules/Main/TransformModule"
 import { Container } from "pixi.js"
 
 export class PawnModules {
-    private PawnActivated: PawnEvent<PawnEventData<Pawn>>
-    private PawnDeactivated: PawnEvent<PawnEventData<Pawn>>
-    private PawnUpdate: PawnEvent<PawnEventData<Pawn>>
-
-
     private pawn: Pawn
     private modules: Array<PawnModule> = new Array<PawnModule>()
-    private PawnModulesRemoved: PawnEvent<PawnEventData<Pawn>> = new PawnEvent<PawnEventData<Pawn>>()
+    public _PawnModulesRemoved: PawnEvent<PawnEventData<Pawn>> = new PawnEvent<PawnEventData<Pawn>>()
 
     private _transform: Container
     public get transform(): Container {
@@ -21,14 +16,8 @@ export class PawnModules {
 
     public constructor(
         pawn: Pawn,
-        PawnActivated: PawnEvent<PawnEventData<Pawn>>,
-        PawnDeactivated: PawnEvent<PawnEventData<Pawn>>,
-        PawnUpdate: PawnEvent<PawnEventData<Pawn>>,
     ) {
         this.pawn = pawn
-        this.PawnActivated = PawnActivated
-        this.PawnDeactivated = PawnDeactivated
-        this.PawnUpdate = PawnUpdate
     }
 
     public AddInitial(pawnData?: PawnData) {
@@ -46,8 +35,6 @@ export class PawnModules {
         PawnModuleClass: PawnModuleConstructor<Module, Data> & { UNIQUE?: boolean },
         moduleData?: Data
     ): Module {
-        console.log(this.pawn)
-
         if (PawnModuleClass.UNIQUE) {
             if (this.Has(PawnModuleClass)) {
                 console.error(`"${this.pawn.name}" Pawn already has an unique "${PawnModuleClass.name}" Module`)
@@ -57,11 +44,6 @@ export class PawnModules {
 
         moduleData ??= {} as Data
         Object.assign(moduleData, {
-            _PawnActivated: this.PawnActivated,
-            _PawnDeactivated: this.PawnDeactivated,
-            _PawnUpdate: this.PawnUpdate,
-            _PawnModulesRemoved: this.PawnModulesRemoved,
-            _PawnOnModuleDestroyed: this.OnModuleDestroyed
         } as Data)
 
         const module: Module = new PawnModuleClass(this.pawn, moduleData)
@@ -111,10 +93,6 @@ export class PawnModules {
         return this.modules
     }
 
-    private OnModuleDestroyed: PawnEventHandler<PawnEventData<PawnModule>> = (moduleDestroyedData: PawnEventData<PawnModule>) => {
-        this.Remove(moduleDestroyedData.source!)
-    }
-
     private Remove<Module extends PawnModule>(module: Module): void {
         const moduleIndexToRemove: number = this.modules.indexOf(module)
         if (moduleIndexToRemove < 0) {
@@ -125,8 +103,12 @@ export class PawnModules {
     }
 
     public RemoveAll(): void {
-        this.PawnModulesRemoved.Dispatch()
-        this.PawnModulesRemoved.UnsubscribeAll()
+        this._PawnModulesRemoved.Dispatch()
+        this._PawnModulesRemoved.UnsubscribeAll()
         this.modules = []
+    }
+
+    public _OnModuleDestroyed: PawnEventHandler<PawnEventData<PawnModule>> = (moduleDestroyedData: PawnEventData<PawnModule>) => {
+        this.Remove(moduleDestroyedData.source!)
     }
 }
