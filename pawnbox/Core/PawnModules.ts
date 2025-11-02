@@ -24,6 +24,26 @@ export type PawnModulesReturnType<Type>
 export type ReturnModulesArray = () => Array<PawnModule>
 // #endregion
 
+// #region Initial Modules
+interface InitialModule<Module extends PawnModule<Data> = PawnModule, Data extends PawnModuleData = PawnModuleData> {
+    PawnModuleClass: PawnModuleConstructor<Module, Data>,
+    moduleData: Data
+}
+
+export function InitialModule<Module extends PawnModule<Data> = PawnModule, Data extends PawnModuleData = PawnModuleData>(
+    PawnModuleClass: PawnModuleConstructor<Module, Data>,
+    moduleData?: Data
+): InitialModule<Module, Data> {
+    moduleData ??= {} as Data
+    return {
+        PawnModuleClass: PawnModuleClass,
+        moduleData: moduleData
+    }
+}
+
+export type InitialModules = InitialModule[]
+// #endregion
+
 export class PawnModules {
     // #region Main
     private readonly pawn: Pawn
@@ -33,7 +53,7 @@ export class PawnModules {
     }
     // #endregion
 
-    // #region Basic Management
+    // #region Basic Module Management
     private modules: Array<PawnModule> = new Array<PawnModule>()
 
     public readonly _Add: PawnModulesReturnGeneric = <Module extends PawnModule<Data> = PawnModule, Data extends PawnModuleData = PawnModuleData>(
@@ -99,7 +119,7 @@ export class PawnModules {
     }
     // #endregion
 
-    // #region Initial
+    // #region Load Initial Modules
     private _transform: Container
     public get transform(): Container { return this._transform }
 
@@ -115,7 +135,7 @@ export class PawnModules {
     }
     // #endregion
 
-    // #region Remove All
+    // #region Remove All Modules
     public readonly _PawnModulesRemoved: PawnEvent<PawnEventData<Pawn>> = new PawnEvent<PawnEventData<Pawn>>()
 
     public _RemoveAll(): void {
@@ -126,7 +146,7 @@ export class PawnModules {
     // #endregion
 
     // #region On Module Destroyed
-    public _OnModuleDestroyed: PawnEventHandler<PawnEventData<PawnModule>> = (moduleDestroyedData: PawnEventData<PawnModule>) => {
+    public readonly _OnModuleDestroyed: PawnEventHandler<PawnEventData<PawnModule>> = (moduleDestroyedData: PawnEventData<PawnModule>) => {
         this._Remove(moduleDestroyedData.source!)
     }
 

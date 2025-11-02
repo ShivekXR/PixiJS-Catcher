@@ -1,7 +1,6 @@
 import { PawnEvent, PawnEventData, PawnEventHandler } from "@PawnBox/Core/PawnEvent"
 import { PawnManager, PawnManagerHandlers } from "@PawnBox/Core/PawnManager"
-import { PawnModules, PawnModulesReturnGeneric, PawnModulesReturnGenericArray, PawnModulesReturnType, ReturnModulesArray } from "@PawnBox/Core/PawnModules"
-import { InitialModules } from "@PawnBox/Modules/Main/InitialModules"
+import { InitialModules, PawnModules, PawnModulesReturnGeneric, PawnModulesReturnGenericArray, PawnModulesReturnType, ReturnModulesArray } from "@PawnBox/Core/PawnModules"
 import { ContainerData } from "@PawnBox/Modules/Main/PawnContainerModule"
 
 import { Container } from "pixi.js"
