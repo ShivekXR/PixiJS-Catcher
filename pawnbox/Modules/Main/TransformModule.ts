@@ -3,6 +3,8 @@ import { PawnManager } from "@PawnBox/Core/PawnManager"
 import { PawnContainerModule } from "@PawnBox/Modules/Main/PawnContainerModule"
 import { Container } from "pixi.js"
 
+// TODO: [0.1.0v] Stage Pawn + Parenting + Subscribe to new / unsubscribe from old: activated / deactivated / update
+// TODO: [0.1.1v] Make the transform (and all containers?) fully private; expose getters/setters for important properties    
 export class TransformModule extends PawnContainerModule<Container> {
     public static override readonly UNIQUE: boolean = true
 

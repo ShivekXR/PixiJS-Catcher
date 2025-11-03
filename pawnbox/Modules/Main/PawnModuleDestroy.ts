@@ -13,12 +13,12 @@ export class PawnModuleDestroy {
     public constructor(module: PawnModule) {
         this.ModuleOnDestroy = module.OnDestroy?.bind(module)
         
-        const pawnModules = module.pawn._pawnModules
+        const pawn = module.pawn
 
-        pawnModules._PawnModulesRemoved.Subscribe(this.OnPawnModulesRemoved)
+        pawn._PawnModulesRemoved.Subscribe(this.OnPawnModulesRemoved)
 
         this.ModuleDestroyed = new PawnEvent<PawnEventData<PawnModule>>(module)
-        this.ModuleDestroyed.Subscribe(pawnModules._OnModuleDestroyed)
+        this.ModuleDestroyed.Subscribe(pawn._OnModuleDestroyed)
 
         this.moduleStart = module._moduleStart
         this.moduleUpdate = module._moduleUpdate
