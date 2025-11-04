@@ -1,12 +1,10 @@
 import { PawnEvent, PawnEventData, PawnEventHandler } from "@PawnBox/Core/PawnEvent"
 import { PawnInitialModules } from "@PawnBox/Core/PawnInitialModules"
-import { PawnModule } from "@PawnBox/Modules/Main/PawnModule"
-import { PawnModuleConstructor } from "@PawnBox/Modules/Main/PawnModuleConstructor"
-import { PawnModuleData } from "@PawnBox/Modules/Main/PawnModuleData"
+import { ContainerData } from "@PawnBox/Modules/Main/PawnContainerModule"
+import { PawnModule, PawnModuleConstructor, PawnModuleData } from "@PawnBox/Modules/Main/PawnModule"
 import { PawnTransformModule } from "@PawnBox/Modules/Main/PawnTransformModule"
-import { PawnTransformModuleData } from "@PawnBox/Modules/Main/PawnTransformModuleData"
 
-export interface PawnData extends PawnTransformModuleData {
+export interface PawnData extends ContainerData {
     readonly parentTransform?: PawnTransformModule
     readonly initialModules?: PawnInitialModules
     readonly active?: boolean
@@ -45,9 +43,7 @@ export class Pawn {
         }
 
         moduleData ??= {} as Data
-        moduleData._owner = this
-
-        const module: Module = new PawnModuleClass(moduleData)
+        const module: Module = new PawnModuleClass(this, moduleData)
         module._Destroyed.Subscribe(this._OnModuleDestroyed)
         this.modules.push(module)
         return module

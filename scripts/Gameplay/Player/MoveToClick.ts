@@ -6,7 +6,7 @@ import { ObservablePoint, Ticker } from "pixi.js"
 export enum MoveState {
     Idle,
     Left,
-    Right
+    Right,
 }
 
 export interface MoveStateData extends PawnEventData {

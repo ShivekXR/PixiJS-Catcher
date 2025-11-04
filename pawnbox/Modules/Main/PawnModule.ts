@@ -1,7 +1,13 @@
 import { Pawn } from "@PawnBox/Core/Pawn"
 import { PawnEvent, PawnEventData, PawnEventHandler } from "@PawnBox/Core/PawnEvent"
-import { PawnModuleData } from "@PawnBox/Modules/Main/PawnModuleData"
 import { PawnTransformModule } from "@PawnBox/Modules/Main/PawnTransformModule"
+
+export type PawnModuleConstructor<Module extends PawnModule<Data> = PawnModule, Data extends PawnModuleData = PawnModuleData>
+    = (new (owner: Pawn, moduleData: Data) => Module) & { UNIQUE?: boolean }
+
+export interface PawnModuleData {
+    enabled?: boolean,
+}
 
 // TODO: [0.1.1v] Poolable Module
 export abstract class PawnModule<Data extends PawnModuleData = PawnModuleData> {
@@ -13,8 +19,8 @@ export abstract class PawnModule<Data extends PawnModuleData = PawnModuleData> {
 
     protected get transform(): PawnTransformModule { return this.pawn.transform }
 
-    public constructor(moduleData: Data) {
-        this._pawn = moduleData._owner!
+    public constructor(owner: Pawn, moduleData: Data) {
+        this._pawn = owner
 
         if (this.pawn.active) {
             this.OnStart?.()

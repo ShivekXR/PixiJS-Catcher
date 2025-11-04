@@ -1,6 +1,6 @@
+import { Pawn } from "@PawnBox/Core/Pawn"
 import { AnimatedSpriteModule } from "@PawnBox/Modules/Container/AnimatedSpriteModule"
-import { PawnModule } from "@PawnBox/Modules/Main/PawnModule"
-import { PawnModuleData } from "@PawnBox/Modules/Main/PawnModuleData"
+import { PawnModule, PawnModuleData } from "@PawnBox/Modules/Main/PawnModule"
 
 import { AnimatedSprite, FrameObject, Resource, Spritesheet, Texture } from "pixi.js"
 
@@ -54,8 +54,8 @@ export class AnimatorModule extends PawnModule<AnimatorData> {
         this.animatedSprite.play()
     }
 
-    public constructor(animatorData: AnimatorData) {
-        super(animatorData)
+    public constructor(owner: Pawn, animatorData: AnimatorData) {
+        super(owner, animatorData)
 
         const animationData: AnimationData | undefined = animatorData.animation
         if (animationData != null) {

@@ -1,4 +1,4 @@
-import { PawnData } from "@PawnBox/Core/Pawn"
+import { Pawn, PawnData } from "@PawnBox/Core/Pawn"
 import { PawnEvent } from "@PawnBox/Core/PawnEvent"
 import { PawnRoot } from "@PawnBox/Core/PawnRoot"
 import { PawnModule } from "@PawnBox/Modules/Main/PawnModule"
@@ -13,8 +13,8 @@ export class PawnTransformModule extends PawnModule<PawnData> {
     private _container: Container
     public get container(): Container { return this._container }
 
-    public constructor(pawnData: PawnData) {
-        super(pawnData)
+    public constructor(owner: Pawn, pawnData: PawnData) {
+        super(owner, pawnData)
         this._container = new Container()
         this.container.name ??= pawnData.name ?? "Pawn"
         this.container.position = pawnData.position ?? { x: 0, y: 0 }

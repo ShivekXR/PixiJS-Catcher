@@ -1,13 +1,21 @@
-import { PawnModule } from "@PawnBox/Modules/Main/PawnModule"
-import { PawnTransformModuleData } from "@PawnBox/Modules/Main/PawnTransformModuleData"
+import { Pawn } from "@PawnBox/Core/Pawn"
+import { PawnModule, PawnModuleData } from "@PawnBox/Modules/Main/PawnModule"
 
-import { Container } from "pixi.js"
+import { Container, IPointData } from "pixi.js"
 
-export abstract class PawnContainerModule<Base extends Container> extends PawnModule<PawnTransformModuleData> {
+export interface ContainerData extends PawnModuleData {
+    readonly name?: string
+    readonly position?: IPointData
+    readonly scale?: IPointData
+    readonly rotation?: number
+    readonly pivot?: IPointData
+}
+
+export abstract class PawnContainerModule<Base extends Container = Container, Data extends ContainerData = ContainerData> extends PawnModule<Data> {
     protected _container: Base
 
-    public constructor(container: Base, containerData: PawnTransformModuleData) {
-        super(containerData)
+    public constructor(owner: Pawn, container: Base, containerData: Data) {
+        super(owner, containerData)
         this._container = container
         this._container.setParent(this.pawn.transform.container)
         this._container.name ??= containerData?.name ?? ""

@@ -1,6 +1,4 @@
-import { PawnModule } from "@PawnBox/Modules/Main/PawnModule"
-import { PawnModuleConstructor } from "@PawnBox/Modules/Main/PawnModuleConstructor"
-import { PawnModuleData } from "@PawnBox/Modules/Main/PawnModuleData"
+import { PawnModule, PawnModuleConstructor, PawnModuleData } from "@PawnBox/Modules/Main/PawnModule"
 
 interface PawnInitialModule<Module extends PawnModule<Data> = PawnModule, Data extends PawnModuleData = PawnModuleData> {
     PawnModuleClass: PawnModuleConstructor<Module, Data>,
