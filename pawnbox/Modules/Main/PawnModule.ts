@@ -1,13 +1,9 @@
 import { Pawn } from "@PawnBox/Core/Pawn"
 import { PawnEvent, PawnEventData, PawnEventHandler } from "@PawnBox/Core/PawnEvent"
-
-import { Container } from "pixi.js"
+import { PawnModuleData } from "@PawnBox/Modules/Main/PawnModuleData"
+import { PawnTransformModule } from "@PawnBox/Modules/Main/PawnTransformModule"
 
 // TODO: [0.1.0v] Poolable Module
-
-export interface PawnModuleData {
-}
-
 // TODO: [0.1.0v] Add OnEnable and OnDisable
 export abstract class PawnModule<Data extends PawnModuleData = PawnModuleData> {
     //#region Main
@@ -15,12 +11,11 @@ export abstract class PawnModule<Data extends PawnModuleData = PawnModuleData> {
 
     private _pawn: Pawn
     public get pawn(): Pawn { return this._pawn }
-    
-    protected get transform(): Container { return this.pawn.transform }
 
-    public constructor(owner: Pawn, moduleData: Data) { // FIXME: Put owner into moduleData
-        moduleData ??= {} as Data // Fixme: Is it needed anymore?
-        this._pawn = owner
+    protected get transform(): PawnTransformModule { return this.pawn.transform }
+
+    public constructor(moduleData: Data) {
+        this._pawn = moduleData._owner!
 
         if (this.pawn.active) {
             this.OnStart?.()

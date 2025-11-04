@@ -1,12 +1,11 @@
 import { PawnEvent, PawnEventData, PawnEventHandler } from "@PawnBox/Core/PawnEvent"
 import { PawnManager, PawnManagerHandlers } from "@PawnBox/Core/PawnManager"
-import { ContainerData } from "@PawnBox/Modules/Main/PawnContainerModule"
-import { PawnModule, PawnModuleData } from "@PawnBox/Modules/Main/PawnModule"
-import { TransformModule } from "@PawnBox/Modules/Main/TransformModule"
+import { PawnModule } from "@PawnBox/Modules/Main/PawnModule"
+import { PawnModuleData } from "@PawnBox/Modules/Main/PawnModuleData"
+import { PawnTransformModule } from "@PawnBox/Modules/Main/PawnTransformModule"
+import { PawnTransformModuleData } from "@PawnBox/Modules/Main/PawnTransformModuleData"
 
-import { Container } from "pixi.js"
-
-export interface PawnData extends ContainerData {
+export interface PawnData extends PawnTransformModuleData {
     readonly parent?: Pawn
     readonly initialModules?: InitialModules
     readonly active?: boolean
@@ -15,7 +14,7 @@ export interface PawnData extends ContainerData {
 // #region Types
 //FIXME
 export type PawnModuleConstructor<Module extends PawnModule<Data> = PawnModule, Data extends PawnModuleData = PawnModuleData>
-    = (new (owner: Pawn, moduleData: Data) => Module) & { UNIQUE?: boolean }
+    = (new (moduleData: Data) => Module) & { UNIQUE?: boolean }
 // #endregion
 
 // #region Initial Modules
@@ -31,7 +30,7 @@ export function InitialModule<Module extends PawnModule<Data> = PawnModule, Data
     moduleData ??= {} as Data
     return {
         PawnModuleClass: PawnModuleClass,
-        moduleData: moduleData
+        moduleData: moduleData,
     }
 }
 
@@ -67,12 +66,10 @@ export class Pawn {
             }
         }
 
-        // FIXME
         moduleData ??= {} as Data
-        Object.assign(moduleData, {
-        } as Data)
+        moduleData._owner ??= this
 
-        const module: Module = new PawnModuleClass(this, moduleData)
+        const module: Module = new PawnModuleClass(moduleData)
         module._Destroyed.Subscribe(this._OnModuleDestroyed)
         this.modules.push(module)
         return module
@@ -123,7 +120,7 @@ export class Pawn {
 
     // #region Add Initial Modules
     public AddInitialModules(pawnData?: PawnData) {
-        this._transform = this.AddModule(TransformModule, pawnData).transform
+        this._transform = this.AddModule(PawnTransformModule, pawnData)
 
         if (pawnData?.initialModules == null) {
             return
@@ -147,7 +144,6 @@ export class Pawn {
     // #region On Module Destroyed
     public readonly _OnModuleDestroyed: PawnEventHandler<PawnEventData<PawnModule>> = (moduleDestroyedData: PawnEventData<PawnModule>) => {
         const module: PawnModule = moduleDestroyedData.source!
-        console.log(module)
         module._Destroyed.Unsubscribe(this._OnModuleDestroyed)
         this.RemoveModule(module)
     }
@@ -165,11 +161,11 @@ export class Pawn {
     // #endregion
 
     // #region Transform
-    private _transform: Container
-    public get transform(): Container { return this._transform }
-    
-    public get name(): string { return this.transform.name! }
-    public set name(value: string) { this.transform.name = value }
+    private _transform: PawnTransformModule
+    public get transform(): PawnTransformModule { return this._transform }
+
+    public get name(): string { return this.transform.container.name! }
+    public set name(value: string) { this.transform.container.name = value }
     // #endregion
 
 

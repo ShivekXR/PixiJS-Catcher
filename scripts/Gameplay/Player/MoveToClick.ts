@@ -28,7 +28,7 @@ export class MoveToClick extends PawnModule {
     }
 
     protected override OnStart(): void {
-        this.position = this.transform.position
+        this.position = this.transform.container.position
         this.targetPositionX = this.position.x
         Game.globalInput.clicked.Subscribe(this.OnPointerClick)
     }

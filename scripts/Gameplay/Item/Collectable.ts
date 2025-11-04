@@ -1,5 +1,6 @@
+import { Pawn, PawnEvent, PawnModule, PawnModuleData } from "PawnBox"
+
 import "@pixi/math-extras"
-import { PawnEvent, Pawn, PawnModule, PawnModuleData } from "PawnBox"
 import { ObservablePoint, Point } from "pixi.js"
 
 export interface CollectableData extends PawnModuleData {
@@ -17,19 +18,19 @@ export class Collectable extends PawnModule<CollectableData> {
     public collected: PawnEvent = new PawnEvent(this)
 
     protected override OnUpdate(): void {
-        const collectVector: Point = this._collectorPosition.subtract(this.transform.position)
+        const collectVector: Point = this._collectorPosition.subtract(this.transform.container.position)
         const distanceToCollector: number = collectVector.magnitudeSquared()
-        if(distanceToCollector < Collectable.COLLECT_DISTANCE_SQR) {
+        if (distanceToCollector < Collectable.COLLECT_DISTANCE_SQR) {
             this.collected.Dispatch()
             this.pawn.Destroy()
         }
     }
 
-    public constructor(owner: Pawn, collectableData: CollectableData) {
-        super(owner, collectableData)
+    public constructor(collectableData: CollectableData) {
+        super(collectableData)
         const collector = collectableData?.collector
-        if(collector != null) {
-            this.collectorPosition = collector.transform.position
+        if (collector != null) {
+            this.collectorPosition = collector.transform.container.position
         }
     }
 }

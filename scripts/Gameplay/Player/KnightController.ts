@@ -31,7 +31,7 @@ export class KnightController extends PawnModule {
         this.animations = this.pawn.GetModule(KnightAnimations)
         this.movement = this.pawn.GetModule(MoveToClick)
         this.movement.moveDirectionChanged.Subscribe(this.OnMoveDirectionChange)
-        this.transform.position = { x: 320, y: 550 }
+        this.transform.container.position = { x: 320, y: 550 }
     }
 
     protected override OnDestroy(): void {

@@ -5,6 +5,6 @@ export class Drop extends PawnModule {
     private ticker: Ticker = Ticker.shared
 
     protected override OnUpdate(): void {
-        this.transform.position.y += 0.15 * this.ticker.deltaMS
+        this.transform.container.position.y += 0.15 * this.ticker.deltaMS
     }
 }

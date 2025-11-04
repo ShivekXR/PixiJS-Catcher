@@ -1,4 +1,5 @@
 import { PawnEvent, PawnEventData, PawnEventHandler } from "@PawnBox/Core/PawnEvent"
+
 import { Container, Ticker } from "pixi.js"
 
 export interface PawnManagerHandlers {
