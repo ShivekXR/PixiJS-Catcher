@@ -15,9 +15,18 @@ export abstract class PawnContainerModule<Base extends Container> extends PawnMo
         this._container.scale = containerData?.scale ?? { x: 1, y: 1 }
         this._container.rotation = containerData?.rotation ?? 0
         this._container.pivot = containerData?.pivot ?? { x: 0, y: 0 }
+        this._container.visible = false
     }
 
     protected override OnDestroy(): void {
         this._container.destroy()
+    }
+
+    protected override OnEnable(): void {
+        this._container.visible = true
+    }
+
+    protected override OnDisable(): void {
+        this._container.visible = false
     }
 }
