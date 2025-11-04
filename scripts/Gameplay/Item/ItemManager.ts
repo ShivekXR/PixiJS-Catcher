@@ -59,7 +59,7 @@ export class ItemManager extends PawnModule {
         const item: Pawn = new Pawn({
             name: `Item_${ItemManager.itemCounter}`,
             position: { x: MathHelpers.RandomRange(0, 640), y: -10 },
-            parent: this.pawn
+            parentTransform: this.pawn.transform
         })
         item.AddModule(SpriteModule, {
             texture: this.GetRandomTexture(),

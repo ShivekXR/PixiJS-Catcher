@@ -1,41 +1,16 @@
 import { PawnEvent, PawnEventData, PawnEventHandler } from "@PawnBox/Core/PawnEvent"
-import { PawnManager, PawnManagerHandlers } from "@PawnBox/Core/PawnManager"
+import { PawnInitialModules } from "@PawnBox/Core/PawnInitialModules"
 import { PawnModule } from "@PawnBox/Modules/Main/PawnModule"
+import { PawnModuleConstructor } from "@PawnBox/Modules/Main/PawnModuleConstructor"
 import { PawnModuleData } from "@PawnBox/Modules/Main/PawnModuleData"
 import { PawnTransformModule } from "@PawnBox/Modules/Main/PawnTransformModule"
 import { PawnTransformModuleData } from "@PawnBox/Modules/Main/PawnTransformModuleData"
 
 export interface PawnData extends PawnTransformModuleData {
-    readonly parent?: Pawn
-    readonly initialModules?: InitialModules
+    readonly parentTransform?: PawnTransformModule
+    readonly initialModules?: PawnInitialModules
     readonly active?: boolean
 }
-
-// #region Types
-//FIXME
-export type PawnModuleConstructor<Module extends PawnModule<Data> = PawnModule, Data extends PawnModuleData = PawnModuleData>
-    = (new (moduleData: Data) => Module) & { UNIQUE?: boolean }
-// #endregion
-
-// #region Initial Modules
-interface InitialModule<Module extends PawnModule<Data> = PawnModule, Data extends PawnModuleData = PawnModuleData> {
-    PawnModuleClass: PawnModuleConstructor<Module, Data>,
-    moduleData: Data
-}
-
-export function InitialModule<Module extends PawnModule<Data> = PawnModule, Data extends PawnModuleData = PawnModuleData>(
-    PawnModuleClass: PawnModuleConstructor<Module, Data>,
-    moduleData?: Data
-): InitialModule<Module, Data> {
-    moduleData ??= {} as Data
-    return {
-        PawnModuleClass: PawnModuleClass,
-        moduleData: moduleData,
-    }
-}
-
-export type InitialModules = InitialModule[]
-// #endregion
 
 export class Pawn {
     // #region Main
@@ -43,11 +18,6 @@ export class Pawn {
         this.AddInitialModules(pawnData)
 
         this.active = pawnData?.active ?? pawnData?.initialModules != null
-
-        this.pawnHandlers = {
-            update: this._OnPawnManagerUpdate
-        }
-        PawnManager._RegisterHandlers(this.pawnHandlers)
     }
     // #endregion
 
@@ -67,7 +37,7 @@ export class Pawn {
         }
 
         moduleData ??= {} as Data
-        moduleData._owner ??= this
+        moduleData._owner = this
 
         const module: Module = new PawnModuleClass(moduleData)
         module._Destroyed.Subscribe(this._OnModuleDestroyed)
@@ -171,8 +141,6 @@ export class Pawn {
 
 
 
-    private pawnHandlers: PawnManagerHandlers
-
     public _PawnActivated: PawnEvent<PawnEventData<Pawn>> = new PawnEvent<PawnEventData<Pawn>>()
     public _PawnDeactivated: PawnEvent<PawnEventData<Pawn>> = new PawnEvent<PawnEventData<Pawn>>()
     private _active: boolean = false
@@ -200,9 +168,11 @@ export class Pawn {
         this._PawnUpdate.Dispatch()
     }
 
+    public readonly _OnParentDestroyed: PawnEventHandler = () => {
+        this.Destroy()
+    }
 
     public Destroy(): void {
         this.RemoveAllModules()
-        PawnManager._UnregisterHandlers(this.pawnHandlers)
     }
 }

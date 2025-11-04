@@ -1,7 +1,8 @@
 // TODO: [0.1.0v] Check which exports are really needed
 export * from "@PawnBox/Core/Pawn"
 export * from "@PawnBox/Core/PawnEvent"
-export * from "@PawnBox/Core/PawnManager"
+export { InitialModule } from "@PawnBox/Core/PawnInitialModules"
+export { PawnRoot } from "@PawnBox/Core/PawnRoot"
 export * from "@PawnBox/Modules/Container/AnimatedSpriteModule"
 export * from "@PawnBox/Modules/Container/PawnContainerModule"
 export * from "@PawnBox/Modules/Container/SpriteModule"

@@ -1,11 +1,11 @@
 import { ItemManager } from "@Scripts/Gameplay/Item/ItemManager"
 import { PlayerPawn } from "@Scripts/Gameplay/Player/PlayerPawn"
 import { GlobalInput } from "@Scripts/GlobalInput"
-import { PawnEventHandler, Pawn, PawnManager } from "PawnBox"
+import { PawnEventHandler, Pawn, PawnRoot } from "PawnBox"
 import { Application, BaseTexture, Rectangle, SCALE_MODES } from "pixi.js"
 
 class Game {
-    private static readonly START_LIVES: number = 10
+    private static readonly START_LIVES: number = 3
 
     private static _application: Application
 
@@ -40,7 +40,7 @@ class Game {
         // @ts-expect-error
         globalThis.__PIXI_APP__ = this._application
 
-        PawnManager.Initialize(this._application.stage)
+        new PawnRoot(this._application.stage)
     }
 
     private static OnItemCollected: PawnEventHandler = () => {
@@ -76,6 +76,7 @@ class Game {
 
     public static End() {
         this.items.active = false
+        this.items.Destroy()
     }
 }
 
