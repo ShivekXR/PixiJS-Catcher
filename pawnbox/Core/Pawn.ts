@@ -73,6 +73,7 @@ export class Pawn {
         } as Data)
 
         const module: Module = new PawnModuleClass(this, moduleData)
+        module._Destroyed.Subscribe(this._OnModuleDestroyed)
         this.modules.push(module)
         return module
     }
@@ -134,21 +135,24 @@ export class Pawn {
     // #endregion
 
     // #region Remove All Modules
-    public readonly _PawnModulesRemoved: PawnEvent<PawnEventData<Pawn>> = new PawnEvent<PawnEventData<Pawn>>()
 
-    public _RemoveAll(): void {
-        this.modules = []
-        this._PawnModulesRemoved.Dispatch()
-        this._PawnModulesRemoved.UnsubscribeAll()
+    public RemoveAllModules(): void {
+        const modules = [...this.modules]
+        for (let module of modules) {
+            module.Destroy()
+        }
     }
     // #endregion
 
     // #region On Module Destroyed
     public readonly _OnModuleDestroyed: PawnEventHandler<PawnEventData<PawnModule>> = (moduleDestroyedData: PawnEventData<PawnModule>) => {
-        this._Remove(moduleDestroyedData.source!)
+        const module: PawnModule = moduleDestroyedData.source!
+        console.log(module)
+        module._Destroyed.Unsubscribe(this._OnModuleDestroyed)
+        this.RemoveModule(module)
     }
 
-    private _Remove<Module extends PawnModule>(module: Module): void {
+    private RemoveModule<Module extends PawnModule>(module: Module): void {
         const moduleIndexToRemove: number = this.modules.indexOf(module)
         if (moduleIndexToRemove < 0) {
             console.error(`Couldn't find "${module.constructor.name}" Module in "${this.name}" Pawn`)
@@ -202,7 +206,7 @@ export class Pawn {
 
 
     public Destroy(): void {
-        this._RemoveAll()
+        this.RemoveAllModules()
         PawnManager._UnregisterHandlers(this.pawnHandlers)
     }
 }
