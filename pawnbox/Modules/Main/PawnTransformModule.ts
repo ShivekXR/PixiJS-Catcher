@@ -9,7 +9,6 @@ export class PawnTransformModule extends PawnModule<PawnData> {
     //#region Main
     public static override readonly UNIQUE: boolean = true
 
-    // TODO: [0.1.1v] Make the containers fully private; expose getters/setters for important properties instead
     private _container: Container
     public get container(): Container { return this._container }
 

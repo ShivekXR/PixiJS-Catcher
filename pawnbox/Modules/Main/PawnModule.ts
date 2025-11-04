@@ -9,7 +9,6 @@ export interface PawnModuleData {
     enabled?: boolean,
 }
 
-// TODO: [0.1.1v] Poolable Module
 export abstract class PawnModule<Data extends PawnModuleData = PawnModuleData> {
     //#region Main
     public static readonly UNIQUE: boolean = false

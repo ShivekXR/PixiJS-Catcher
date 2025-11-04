@@ -12,6 +12,7 @@ export interface ContainerData extends PawnModuleData {
 }
 
 export abstract class PawnContainerModule<Base extends Container = Container, Data extends ContainerData = ContainerData> extends PawnModule<Data> {
+    // TODO: [0.1.2v] Make the containers fully private; expose getters/setters for important properties instead
     protected _container: Base
 
     public constructor(owner: Pawn, container: Base, containerData: Data) {
