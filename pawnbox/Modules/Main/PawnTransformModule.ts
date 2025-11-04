@@ -5,8 +5,8 @@ import { PawnModule } from "@PawnBox/Modules/Main/PawnModule"
 
 import { Container } from "pixi.js"
 
-// TODO: [0.1.0v] Add activated / deactivated
 export class PawnTransformModule extends PawnModule<PawnData> {
+    //#region Main
     public static override readonly UNIQUE: boolean = true
 
     // TODO: [0.1.1v] Make the containers fully private; expose getters/setters for important properties instead
@@ -24,11 +24,16 @@ export class PawnTransformModule extends PawnModule<PawnData> {
 
         this._SetParent(pawnData.parentTransform ?? PawnRoot.root)
     }
+    //#endregion
 
+    //#region Hierarchy
     private _parent: PawnTransformModule | PawnRoot
     public get parent(): PawnTransformModule | PawnRoot { return this._parent }
 
-    public _Update: PawnEvent = new PawnEvent()
+    public SetParent(newParent: PawnTransformModule | PawnRoot): void {
+        this._Deparent()
+        this._SetParent(newParent)
+    }
 
     private _SetParent(newParent: PawnTransformModule | PawnRoot) {
         this._parent = newParent
@@ -50,12 +55,10 @@ export class PawnTransformModule extends PawnModule<PawnData> {
         this.parent._Update.Unsubscribe(this.pawn._OnParentUpdate)
         this.parent._Destroyed.Unsubscribe(this.pawn._OnParentDestroyed)
     }
+    //#endregion
 
-    public SetParent(newParent: PawnTransformModule | PawnRoot): void {
-        this._Deparent()
-        this._SetParent(newParent)
-    }
-
+    //#region Events
+    public _Update: PawnEvent = new PawnEvent()
     protected override OnUpdate(): void {
         this._Update.Dispatch()
     }
@@ -77,4 +80,5 @@ export class PawnTransformModule extends PawnModule<PawnData> {
         this._Update.UnsubscribeAll()
         this._container.destroy()
     }
+    //#endregion
 }

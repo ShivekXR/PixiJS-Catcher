@@ -161,7 +161,7 @@ export class Pawn {
     }
 
     public _PawnDeactivated: PawnEvent<PawnEventData<Pawn>> = new PawnEvent<PawnEventData<Pawn>>()
-    // TODO: Remove _OnTransformDisabled and handle _OnTransformEnable with enabled boolean
+    // TODO: [0.1.1v] Remove _OnTransformDisabled and handle _OnTransformEnable with enabled boolean
     public readonly _OnTransformDisabled: PawnEventHandler = () => {
         if (this._active) {
             this._PawnDeactivated.Dispatch()

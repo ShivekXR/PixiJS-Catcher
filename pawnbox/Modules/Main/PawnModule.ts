@@ -3,7 +3,7 @@ import { PawnEvent, PawnEventData, PawnEventHandler } from "@PawnBox/Core/PawnEv
 import { PawnModuleData } from "@PawnBox/Modules/Main/PawnModuleData"
 import { PawnTransformModule } from "@PawnBox/Modules/Main/PawnTransformModule"
 
-// TODO: [0.1.0v] Poolable Module
+// TODO: [0.1.1v] Poolable Module
 export abstract class PawnModule<Data extends PawnModuleData = PawnModuleData> {
     //#region Main
     public static readonly UNIQUE: boolean = false
@@ -38,9 +38,7 @@ export abstract class PawnModule<Data extends PawnModuleData = PawnModuleData> {
 
     //#region Enable / Disable
     private _enabled: boolean = false
-    public get enabled(): boolean {
-        return this._enabled && this.pawn.active
-    }
+    public get enabled(): boolean { return this._enabled && this.pawn.active }
     public set enabled(value: boolean) {
         if (this._enabled == value) {
             return
@@ -92,7 +90,7 @@ export abstract class PawnModule<Data extends PawnModuleData = PawnModuleData> {
         this.pawn._PawnActivated.Unsubscribe(this._OnPawnActivated)
         this.pawn._PawnDeactivated.Unsubscribe(this._OnPawnDeactivated)
         this.pawn._PawnUpdate.Unsubscribe(this._OnPawnUpdate)
-        
+
         this.OnDestroy?.()
         this._Destroyed.Dispatch()
         this._Destroyed.UnsubscribeAll()
