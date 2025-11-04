@@ -21,7 +21,6 @@ export abstract class PawnModule<Data extends PawnModuleData = PawnModuleData> {
         } else {
             this.pawn._PawnActivated.Subscribe(this._OnStart)
         }
-
         this.pawn._PawnActivated.Subscribe(this._OnPawnActivated)
         this.pawn._PawnDeactivated.Subscribe(this._OnPawnDeactivated)
         this.pawn._PawnUpdate.Subscribe(this._OnPawnUpdate)

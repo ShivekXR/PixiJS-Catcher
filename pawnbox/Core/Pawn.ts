@@ -138,26 +138,8 @@ export class Pawn {
     //#endregion
 
     //#region Pawn Active
-    public _PawnActivated: PawnEvent<PawnEventData<Pawn>> = new PawnEvent<PawnEventData<Pawn>>()
-    public _PawnDeactivated: PawnEvent<PawnEventData<Pawn>> = new PawnEvent<PawnEventData<Pawn>>()
-    
-    // TODO: _OnTransformEnable => enabled boolean
-    public _OnTransformEnabled: PawnEventHandler = () => {
-        if (this._active) {
-            this._PawnActivated.Dispatch()
-        }
-    }
-
-    public _OnTransformDisabled: PawnEventHandler = () => {
-        if (this._active) {
-            this._PawnDeactivated.Dispatch()
-        }
-    }
-
     private _active: boolean = false
-    public get active(): boolean {
-        return this._active && this.transform.parent.enabled
-    }
+    public get active(): boolean { return this._active && this.transform.parent.enabled }
     public set active(value: boolean) {
         if (this.active == value) {
             return
@@ -170,12 +152,27 @@ export class Pawn {
             this._PawnDeactivated.Dispatch()
         }
     }
+
+    public _PawnActivated: PawnEvent<PawnEventData<Pawn>> = new PawnEvent<PawnEventData<Pawn>>()
+    public readonly _OnTransformEnabled: PawnEventHandler = () => {
+        if (this._active) {
+            this._PawnActivated.Dispatch()
+        }
+    }
+
+    public _PawnDeactivated: PawnEvent<PawnEventData<Pawn>> = new PawnEvent<PawnEventData<Pawn>>()
+    // TODO: Remove _OnTransformDisabled and handle _OnTransformEnable with enabled boolean
+    public readonly _OnTransformDisabled: PawnEventHandler = () => {
+        if (this._active) {
+            this._PawnDeactivated.Dispatch()
+        }
+    }
     //#endregion
 
     //#region Pawn Update
     public _PawnUpdate: PawnEvent<PawnEventData<Pawn>> = new PawnEvent<PawnEventData<Pawn>>()
 
-    public _OnParentUpdate: PawnEventHandler<PawnEventData<void>> = () => {
+    public readonly _OnParentUpdate: PawnEventHandler<PawnEventData<void>> = () => {
         if (!this.active) {
             return
         }
