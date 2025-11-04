@@ -21,6 +21,7 @@ export abstract class PawnModule<Data extends PawnModuleData = PawnModuleData> {
         } else {
             this.pawn._PawnActivated.Subscribe(this._OnStart)
         }
+        this.enabled = moduleData.enabled ?? true
         this.pawn._PawnActivated.Subscribe(this._OnPawnActivated)
         this.pawn._PawnDeactivated.Subscribe(this._OnPawnDeactivated)
         this.pawn._PawnUpdate.Subscribe(this._OnPawnUpdate)
@@ -36,7 +37,7 @@ export abstract class PawnModule<Data extends PawnModuleData = PawnModuleData> {
     //#endregion
 
     //#region Enable / Disable
-    private _enabled: boolean = true
+    private _enabled: boolean = false
     public get enabled(): boolean {
         return this._enabled && this.pawn.active
     }

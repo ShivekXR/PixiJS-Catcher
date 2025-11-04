@@ -1,5 +1,6 @@
-import { Pawn } from "@PawnBox/Core/Pawn"
+import { Pawn } from "@PawnBox/Core/Pawn";
 
 export interface PawnModuleData {
-    _owner?: Pawn
+    enabled?: boolean,
+    _owner?: Pawn,
 }
