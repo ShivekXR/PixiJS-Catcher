@@ -13,18 +13,26 @@ export interface PawnData extends PawnTransformModuleData {
 }
 
 export class Pawn {
-    // #region Main
+    //#region Main
     public constructor(pawnData?: PawnData) {
         this.AddInitialModules(pawnData)
 
         this.active = pawnData?.active ?? pawnData?.initialModules != null
     }
-    // #endregion
+    //#endregion
 
-    // #region Modules
+    //#region Transform
+    private _transform: PawnTransformModule
+    public get transform(): PawnTransformModule { return this._transform }
+
+    public get name(): string { return this.transform.container.name! }
+    public set name(value: string) { this.transform.container.name = value }
+    //#endregion
+
+    //#region Modules
     private modules: Array<PawnModule> = new Array<PawnModule>()
 
-    // #region Basic Module Management
+    //#region Basic Module Management
     public AddModule<Module extends PawnModule<Data> = PawnModule, Data extends PawnModuleData = PawnModuleData>(
         PawnModuleClass: PawnModuleConstructor<Module, Data>,
         moduleData?: Data,
@@ -86,9 +94,9 @@ export class Pawn {
     public GetAllModules(): Array<PawnModule> {
         return this.modules
     }
-    // #endregion
+    //#endregion
 
-    // #region Add Initial Modules
+    //#region Add Initial Modules
     public AddInitialModules(pawnData?: PawnData) {
         this._transform = this.AddModule(PawnTransformModule, pawnData)
 
@@ -99,19 +107,18 @@ export class Pawn {
             this.AddModule(moduleData.PawnModuleClass, pawnData)
         }
     }
-    // #endregion
+    //#endregion
 
-    // #region Remove All Modules
-
+    //#region Remove All Modules
     public RemoveAllModules(): void {
         const modules = [...this.modules]
         for (let module of modules) {
             module.Destroy()
         }
     }
-    // #endregion
+    //#endregion
 
-    // #region On Module Destroyed
+    //#region On Module Destroyed
     public readonly _OnModuleDestroyed: PawnEventHandler<PawnEventData<PawnModule>> = (moduleDestroyedData: PawnEventData<PawnModule>) => {
         const module: PawnModule = moduleDestroyedData.source!
         module._Destroyed.Unsubscribe(this._OnModuleDestroyed)
@@ -126,26 +133,30 @@ export class Pawn {
         }
         this.modules.splice(moduleIndexToRemove, 1)
     }
-    // #endregion
+    //#endregion
 
-    // #endregion
+    //#endregion
 
-    // #region Transform
-    private _transform: PawnTransformModule
-    public get transform(): PawnTransformModule { return this._transform }
-
-    public get name(): string { return this.transform.container.name! }
-    public set name(value: string) { this.transform.container.name = value }
-    // #endregion
-
-
-
-
+    //#region Pawn Active
     public _PawnActivated: PawnEvent<PawnEventData<Pawn>> = new PawnEvent<PawnEventData<Pawn>>()
     public _PawnDeactivated: PawnEvent<PawnEventData<Pawn>> = new PawnEvent<PawnEventData<Pawn>>()
+    
+    // TODO: _OnTransformEnable => enabled boolean
+    public _OnTransformEnabled: PawnEventHandler = () => {
+        if (this._active) {
+            this._PawnActivated.Dispatch()
+        }
+    }
+
+    public _OnTransformDisabled: PawnEventHandler = () => {
+        if (this._active) {
+            this._PawnDeactivated.Dispatch()
+        }
+    }
+
     private _active: boolean = false
     public get active(): boolean {
-        return this._active
+        return this._active && this.transform.parent.enabled
     }
     public set active(value: boolean) {
         if (this.active == value) {
@@ -159,15 +170,20 @@ export class Pawn {
             this._PawnDeactivated.Dispatch()
         }
     }
+    //#endregion
 
+    //#region Pawn Update
     public _PawnUpdate: PawnEvent<PawnEventData<Pawn>> = new PawnEvent<PawnEventData<Pawn>>()
-    public _OnPawnManagerUpdate: PawnEventHandler<PawnEventData<void>> = () => {
+
+    public _OnParentUpdate: PawnEventHandler<PawnEventData<void>> = () => {
         if (!this.active) {
             return
         }
         this._PawnUpdate.Dispatch()
     }
+    //#endregion
 
+    //#region Pawn Destroy
     public readonly _OnParentDestroyed: PawnEventHandler = () => {
         this.Destroy()
     }
@@ -175,4 +191,5 @@ export class Pawn {
     public Destroy(): void {
         this.RemoveAllModules()
     }
+    //#endregion
 }

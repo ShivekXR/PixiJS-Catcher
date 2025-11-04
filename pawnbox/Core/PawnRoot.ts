@@ -26,4 +26,8 @@ export class PawnRoot {
         this._Destroyed.Dispatch()
         this._Destroyed.UnsubscribeAll()
     }
+
+    public _Enabled: PawnEvent = new PawnEvent()
+    public _Disabled: PawnEvent = new PawnEvent()
+    public enabled: boolean = true
 }

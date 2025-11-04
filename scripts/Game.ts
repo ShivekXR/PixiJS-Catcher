@@ -51,7 +51,7 @@ class Game {
     private static AddLives(amount: number) {
         console.log(this.lives)
         this.lives += amount
-        if (this.lives < 0) {
+        if (this.lives <= 0) {
             this.End()
         }
     }
@@ -76,7 +76,6 @@ class Game {
 
     public static End() {
         this.items.active = false
-        this.items.Destroy()
     }
 }
 

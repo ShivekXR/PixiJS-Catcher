@@ -5,7 +5,8 @@ import { BreakOnGround } from "@Scripts/Gameplay/Item/BreakOnGround"
 import { Collectable } from "@Scripts/Gameplay/Item/Collectable"
 import { Drop } from "@Scripts/Gameplay/Item/Drop"
 import MathHelpers from "@Scripts/MathHelpers"
-import { PawnEvent, PawnEventHandler, Pawn, PawnModule, SpriteModule } from "PawnBox"
+
+import { Pawn, PawnEvent, PawnEventHandler, PawnModule, SpriteModule } from "PawnBox"
 import { Spritesheet, Texture, Ticker } from "pixi.js"
 
 export class ItemManager extends PawnModule {

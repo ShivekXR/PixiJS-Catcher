@@ -8,7 +8,7 @@ import { Container } from "pixi.js"
 // TODO: [0.1.0v] Add activated / deactivated
 export class PawnTransformModule extends PawnModule<PawnData> {
     public static override readonly UNIQUE: boolean = true
-    
+
     // TODO: [0.1.1v] Make the containers fully private; expose getters/setters for important properties instead
     private _container: Container
     public get container(): Container { return this._container }
@@ -25,24 +25,29 @@ export class PawnTransformModule extends PawnModule<PawnData> {
         this._SetParent(pawnData.parentTransform ?? PawnRoot.root)
     }
 
-    private parent: PawnTransformModule | PawnRoot
+    private _parent: PawnTransformModule | PawnRoot
+    public get parent(): PawnTransformModule | PawnRoot { return this._parent }
+
     public _Update: PawnEvent = new PawnEvent()
 
     private _SetParent(newParent: PawnTransformModule | PawnRoot) {
-        this.parent = newParent
-        this.parent._Update.Subscribe(this.pawn._OnPawnManagerUpdate)
-        
-        if(this.parent instanceof PawnTransformModule) {
+        this._parent = newParent
+        this.parent._Enabled.Subscribe(this.pawn._OnTransformEnabled)
+        this.parent._Disabled.Subscribe(this.pawn._OnTransformDisabled)
+        this.parent._Update.Subscribe(this.pawn._OnParentUpdate)
+        this.parent._Destroyed.Subscribe(this.pawn._OnParentDestroyed)
+
+        if (this.parent instanceof PawnTransformModule) {
             this.container.setParent(this.parent.transform.container)
         } else {
             this.container.setParent(this.parent.container)
         }
-
-        this.parent._Destroyed.Subscribe(this.pawn._OnParentDestroyed)
     }
 
     private _Deparent() {
-        this.parent._Update.Unsubscribe(this.pawn._OnPawnManagerUpdate)
+        this.parent._Enabled.Subscribe(this.pawn._OnTransformEnabled)
+        this.parent._Disabled.Subscribe(this.pawn._OnTransformDisabled)
+        this.parent._Update.Unsubscribe(this.pawn._OnParentUpdate)
         this.parent._Destroyed.Unsubscribe(this.pawn._OnParentDestroyed)
     }
 
@@ -55,8 +60,20 @@ export class PawnTransformModule extends PawnModule<PawnData> {
         this._Update.Dispatch()
     }
 
+    public _Enabled: PawnEvent = new PawnEvent()
+    protected override OnEnable(): void {
+        this._Enabled.Dispatch()
+    }
+
+    public _Disabled: PawnEvent = new PawnEvent()
+    protected override OnDisable(): void {
+        this._Disabled.Dispatch()
+    }
+
     protected override OnDestroy(): void {
         this._Deparent()
+        this._Enabled.UnsubscribeAll()
+        this._Disabled.UnsubscribeAll()
         this._Update.UnsubscribeAll()
         this._container.destroy()
     }
