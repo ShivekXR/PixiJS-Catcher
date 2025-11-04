@@ -27,7 +27,7 @@ export class MoveToClick extends PawnModule {
         this.targetPositionX = pointerData.pointerPosition.x
     }
 
-    public override OnStart(): void {
+    protected override OnStart(): void {
         this.position = this.transform.position
         this.targetPositionX = this.position.x
         Game.globalInput.clicked.Subscribe(this.OnPointerClick)
@@ -40,7 +40,7 @@ export class MoveToClick extends PawnModule {
         }
     }
 
-    public override OnUpdate(): void {
+    protected override OnUpdate(): void {
         const vectorToTarget: number = this.targetPositionX - this.position.x
         const distance: number = Math.abs(vectorToTarget)
 
@@ -64,7 +64,7 @@ export class MoveToClick extends PawnModule {
         }
     }
 
-    public override OnDestroy(): void {
+    protected override OnDestroy(): void {
         Game.globalInput.clicked.Unsubscribe(this.OnPointerClick)
     }
 }

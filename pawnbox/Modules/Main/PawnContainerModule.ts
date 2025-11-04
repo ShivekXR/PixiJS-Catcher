@@ -24,7 +24,7 @@ export abstract class PawnContainerModule<Base extends Container> extends PawnMo
         container.pivot = containerData?.pivot ?? { x: 0, y: 0 }
     }
 
-    public override OnDestroy(): void {
+    protected override OnDestroy(): void {
         this._container.destroy()
     }
 }

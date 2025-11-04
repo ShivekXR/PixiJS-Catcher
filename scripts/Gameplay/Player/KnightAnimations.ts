@@ -24,7 +24,7 @@ export class KnightAnimations extends PawnModule {
         this.animator.PlayAnimation(animationName)
     }
 
-    public override OnStart(): void {
+    protected override OnStart(): void {
         this.animator = this.pawn.GetModule(AnimatorModule)
         this.LoadAnimations()
     }

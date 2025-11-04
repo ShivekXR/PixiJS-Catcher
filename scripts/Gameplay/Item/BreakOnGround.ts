@@ -5,7 +5,7 @@ export class BreakOnGround extends PawnModule {
 
     public broken: PawnEvent = new PawnEvent(this)
 
-    public override OnUpdate(): void {
+    protected override OnUpdate(): void {
         if(this.transform.position.y > 650) {
             this.broken.Dispatch()
             this.pawn.Destroy()

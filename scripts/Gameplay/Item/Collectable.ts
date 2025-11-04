@@ -16,7 +16,7 @@ export class Collectable extends PawnModule<CollectableData> {
 
     public collected: PawnEvent = new PawnEvent(this)
 
-    public override OnUpdate(): void {
+    protected override OnUpdate(): void {
         const collectVector: Point = this._collectorPosition.subtract(this.transform.position)
         const distanceToCollector: number = collectVector.magnitudeSquared()
         if(distanceToCollector < Collectable.COLLECT_DISTANCE_SQR) {

@@ -17,7 +17,7 @@ export class AnimatorModule extends PawnModule<AnimatorData> {
     private animations: Map<string, AnimationData> = new Map<string, AnimationData>()
     public static readonly DEFAULT_ANIMATION_NAME: string = "default"
 
-    public override OnStart(): void {
+    protected override OnStart(): void {
         this.animatedSprite = this.pawn.GetModule(AnimatedSpriteModule).animatedSprite
     }
 

@@ -22,7 +22,7 @@ export class ItemManager extends PawnModule {
         this.itemSheetLength = Object.keys(this.itemSheet.textures).length
     }
 
-    public override OnStart(): void {
+    protected override OnStart(): void {
         this.LoadItemSpritesheet()
     }
 
@@ -30,7 +30,7 @@ export class ItemManager extends PawnModule {
         return MathHelpers.RandomRange(500, 2000)
     }
 
-    public override OnUpdate(): void {
+    protected override OnUpdate(): void {
         this.timeToSpawnNext -= Ticker.shared.deltaMS
         if (this.timeToSpawnNext < 0) {
             this.SpawnItem()
