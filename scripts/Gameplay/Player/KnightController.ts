@@ -1,16 +1,13 @@
-import ComponentSystem from "ComponentSystem"
-import KnightAnimations from "Player/KnightAnimations"
-import MoveToClick, { MoveState } from "Player/MoveToClick"
+import { KnightAnimations } from "@Scripts/Gameplay/Player/KnightAnimations"
+import { MoveState, MoveStateData, MoveToClick } from "@Scripts/Gameplay/Player/MoveToClick"
+import { PawnEventHandler, PawnModule } from "PawnBox"
 
-// not sure what to comment here, this class looks great
-// this is the main component system for the player pawn
-
-class KnightController extends ComponentSystem {
+export class KnightController extends PawnModule {
     private movement: MoveToClick
     private animations: KnightAnimations
 
-    private OnMoveChange: EventListener = (event: CustomEventInit) => {
-        this.ChangeAnimation(event.detail)
+    private OnMoveDirectionChange: PawnEventHandler<MoveStateData> = (moveStateData: MoveStateData) => {
+        this.ChangeAnimation(moveStateData.moveState)
     }
 
     private ChangeAnimation(state: MoveState): void {
@@ -30,16 +27,14 @@ class KnightController extends ComponentSystem {
         this.animations.Play(animationName)
     }
 
-    public override Start(): void {
-        this.animations = this.gameObject.GetComponentSystem(KnightAnimations)
-        this.movement = this.gameObject.GetComponentSystem(MoveToClick)
-        this.movement.events.addEventListener(MoveToClick.EVENT_MOVE_CHANGE, this.OnMoveChange)
-        this.gameObject.container.position = { x: 320, y: 550 }
+    protected override OnStart(): void {
+        this.animations = this.pawn.GetModule(KnightAnimations)
+        this.movement = this.pawn.GetModule(MoveToClick)
+        this.movement.moveDirectionChanged.Subscribe(this.OnMoveDirectionChange)
+        this.transform.container.position = { x: 320, y: 550 }
     }
 
-    public override OnDestroy(): void {
-        this.movement.events.removeEventListener(MoveToClick.EVENT_MOVE_CHANGE, this.OnMoveChange)
+    protected override OnDestroy(): void {
+        this.movement.moveDirectionChanged.Unsubscribe(this.OnMoveDirectionChange)
     }
 }
-
-export default KnightController

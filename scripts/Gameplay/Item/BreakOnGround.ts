@@ -1,19 +1,13 @@
-import ComponentSystem from "ComponentSystem"
+import { PawnEvent, PawnModule } from "PawnBox"
 
-// This handles item getting destroyed on the ground
-// However it would be great if some other component
-// system handled the item state like destroying
-// and this only raised the event
+export class BreakOnGround extends PawnModule {
+    public broken: PawnEvent = new PawnEvent(this)
 
-class BreakOnGround extends ComponentSystem {
-    public static readonly EVENT_BREAK_ON_GROUND: string = "break"
-
-    public override Update(): void {
-        if(this.gameObject.container.position.y > 650) { // TODO: Damn value here, should have used screen height here
-            this.events.dispatchEvent(new Event(BreakOnGround.EVENT_BREAK_ON_GROUND))
-            this.gameObject.Destroy()
+    protected override OnUpdate(): void {
+        if(this.transform.container.position.y > 650) {
+            this.pawn.Destroy()
+            this.broken.Dispatch()
+            this.broken.UnsubscribeAll()
         }
     }
 }
-
-export default BreakOnGround

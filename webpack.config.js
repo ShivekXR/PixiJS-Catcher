@@ -25,7 +25,10 @@ module.exports = (env, argv) => {
             rules: [
                 {
                     test: /\.ts$/,
-                    include: [Path.resolve(__dirname, "scripts")],
+                    include: [
+                        Path.resolve(__dirname, "scripts"),
+                        Path.resolve(__dirname, "pawnbox"),
+                    ],
                     loader: "ts-loader",
                 },
             ],
@@ -55,8 +58,6 @@ module.exports = (env, argv) => {
         },
 
         // No matter what, the bundled script will be big - so disable the annoying tips.
-        // TODO: 1. Check possibility to change performance.maxAssetSize and performance.hints
-        // per tested file type (.js, .png, etc) in performance.assetFilter function.
         performance: { hints: false },
 
         stats: argv.mode === "development" ? "minimal" : "normal",

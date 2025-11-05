@@ -1,16 +1,19 @@
-import ComponentSystem from "ComponentSystem"
-import Game from "Game"
-import GlobalInput from "GlobalInput"
+import Game from "@Scripts/Game"
+import { PointerData } from "@Scripts/GlobalInput"
+import { PawnEvent, PawnEventData, PawnEventHandler, PawnModule } from "PawnBox"
 import { ObservablePoint, Ticker } from "pixi.js"
 
 export enum MoveState {
     Idle,
     Left,
-    Right
+    Right,
 }
 
-class MoveToClick extends ComponentSystem {
-    public static readonly EVENT_MOVE_CHANGE: string = "move_change"
+export interface MoveStateData extends PawnEventData {
+    readonly moveState: MoveState
+}
+
+export class MoveToClick extends PawnModule {
     private static readonly MOVEMENT_STOP_PRECISION: number = 1
     private static readonly SPEED: number = 0.5
     private moveState: MoveState | undefined
@@ -18,27 +21,26 @@ class MoveToClick extends ComponentSystem {
     private targetPositionX: number
     private ticker: Ticker = Ticker.shared
 
-    private OnClick: EventListener = (event: CustomEventInit) => {
-        this.targetPositionX = event.detail.x
+    public moveDirectionChanged: PawnEvent<MoveStateData> = new PawnEvent(this)
+
+    private OnPointerClick: PawnEventHandler<PointerData> = (pointerData: PointerData) => {
+        this.targetPositionX = pointerData.pointerPosition.x
     }
 
-    public override Start(): void {
-        this.position = this.gameObject.container.position
+    protected override OnStart(): void {
+        this.position = this.transform.container.position
         this.targetPositionX = this.position.x
-        Game.globalInput.events.addEventListener(GlobalInput.ON_CLICK, this.OnClick)
+        Game.globalInput.clicked.Subscribe(this.OnPointerClick)
     }
 
     private TryChangeState(newState: MoveState) {
         if (this.moveState != newState) {
             this.moveState = newState
-            this.events.dispatchEvent(new CustomEvent(
-                MoveToClick.EVENT_MOVE_CHANGE,
-                { detail: this.moveState }
-            ))
+            this.moveDirectionChanged.Dispatch({ moveState: this.moveState })
         }
     }
 
-    public override Update(): void {
+    protected override OnUpdate(): void {
         const vectorToTarget: number = this.targetPositionX - this.position.x
         const distance: number = Math.abs(vectorToTarget)
 
@@ -62,9 +64,7 @@ class MoveToClick extends ComponentSystem {
         }
     }
 
-    public override OnDestroy(): void {
-        Game.globalInput.events.removeEventListener(GlobalInput.ON_CLICK, this.OnClick)
+    protected override OnDestroy(): void {
+        Game.globalInput.clicked.Unsubscribe(this.OnPointerClick)
     }
 }
-
-export default MoveToClick

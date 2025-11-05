@@ -1,6 +1,6 @@
-import Game from "Game"
-import AssetsBundleManager from "AssetsBundleManager"
-import AssetsBundleConstants from "AssetsBundleConstants"
+import AssetsBundleConstants from "@Scripts/AssetsBundles/AssetsBundleConstants"
+import AssetsBundleManager from "@Scripts/AssetsBundles/AssetsBundleManager"
+import Game from "@Scripts/Game"
 
 Game.Initialize()
 

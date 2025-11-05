@@ -1,10 +1,13 @@
-import ComponentSystem from "ComponentSystem"
-import GameObject from "GameObject"
+import { Pawn, PawnEvent, PawnModule, PawnModuleData } from "PawnBox"
+
 import "@pixi/math-extras"
 import { ObservablePoint, Point } from "pixi.js"
 
-class Collectable extends ComponentSystem<GameObject> {
-    public static readonly EVENT_COLLECT: string = "collect"
+export interface CollectableData extends PawnModuleData {
+    readonly collector?: Pawn
+}
+
+export class Collectable extends PawnModule<CollectableData> {
     private static readonly COLLECT_DISTANCE_SQR = 600
 
     private _collectorPosition: ObservablePoint
@@ -12,21 +15,22 @@ class Collectable extends ComponentSystem<GameObject> {
         this._collectorPosition = value
     }
 
-    public override Update(): void {
-        const collectVector: Point = this._collectorPosition.subtract(this.gameObject.container.position)
+    public collected: PawnEvent = new PawnEvent(this)
+
+    protected override OnUpdate(): void {
+        const collectVector: Point = this._collectorPosition.subtract(this.transform.container.position)
         const distanceToCollector: number = collectVector.magnitudeSquared()
-        if(distanceToCollector < Collectable.COLLECT_DISTANCE_SQR) {
-            this.events.dispatchEvent(new CustomEvent(Collectable.EVENT_COLLECT))
-            this.gameObject.Destroy() // some other component system should take care of that
+        if (distanceToCollector < Collectable.COLLECT_DISTANCE_SQR) {
+            this.collected.Dispatch()
+            this.pawn.Destroy()
         }
     }
 
-    constructor(owner: GameObject, collector?: GameObject) {
-        super(owner)
-        if(collector != null) {
-            this.collectorPosition = collector.container.position
+    public constructor(owner: Pawn, collectableData: CollectableData) {
+        super(owner, collectableData)
+        const collector = collectableData?.collector
+        if (collector != null) {
+            this.collectorPosition = collector.transform.container.position
         }
     }
 }
-
-export default Collectable
