@@ -36,10 +36,10 @@ export class PawnTransformModule extends PawnModule<PawnData> {
 
     private _SetParent(newParent: PawnTransformModule | PawnRoot) {
         this._parent = newParent
-        this.parent._Enabled.Subscribe(this.pawn._OnTransformEnabled)
-        this.parent._Disabled.Subscribe(this.pawn._OnTransformDisabled)
-        this.parent._Update.Subscribe(this.pawn._OnParentUpdate)
-        this.parent._Destroyed.Subscribe(this.pawn._OnParentDestroyed)
+        this.parent._Enabled.Subscribe(this.pawn._OnParentTransformEnabled)
+        this.parent._Disabled.Subscribe(this.pawn._OnParentTransformDisabled)
+        this.parent._Update.Subscribe(this.pawn._OnParentTransformUpdate)
+        this.parent._Destroyed.Subscribe(this.pawn._OnParentTransformDestroyed)
 
         if (this.parent instanceof PawnTransformModule) {
             this.container.setParent(this.parent.transform.container)
@@ -49,10 +49,10 @@ export class PawnTransformModule extends PawnModule<PawnData> {
     }
 
     private _Deparent() {
-        this.parent._Enabled.Subscribe(this.pawn._OnTransformEnabled)
-        this.parent._Disabled.Subscribe(this.pawn._OnTransformDisabled)
-        this.parent._Update.Unsubscribe(this.pawn._OnParentUpdate)
-        this.parent._Destroyed.Unsubscribe(this.pawn._OnParentDestroyed)
+        this.parent._Enabled.Subscribe(this.pawn._OnParentTransformEnabled)
+        this.parent._Disabled.Subscribe(this.pawn._OnParentTransformDisabled)
+        this.parent._Update.Unsubscribe(this.pawn._OnParentTransformUpdate)
+        this.parent._Destroyed.Unsubscribe(this.pawn._OnParentTransformDestroyed)
     }
     //#endregion
 

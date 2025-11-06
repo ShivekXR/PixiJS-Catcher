@@ -150,7 +150,7 @@ export class Pawn {
     }
 
     public _PawnActivated: PawnEvent<PawnEventData<Pawn>> = new PawnEvent<PawnEventData<Pawn>>()
-    public readonly _OnTransformEnabled: PawnEventHandler = () => {
+    public readonly _OnParentTransformEnabled: PawnEventHandler = () => {
         if (this._active) {
             this._PawnActivated.Dispatch()
         }
@@ -158,7 +158,7 @@ export class Pawn {
 
     public _PawnDeactivated: PawnEvent<PawnEventData<Pawn>> = new PawnEvent<PawnEventData<Pawn>>()
     // TODO: [0.1.1v] Remove _OnTransformDisabled and handle _OnTransformEnable with enabled boolean
-    public readonly _OnTransformDisabled: PawnEventHandler = () => {
+    public readonly _OnParentTransformDisabled: PawnEventHandler = () => {
         if (this._active) {
             this._PawnDeactivated.Dispatch()
         }
@@ -168,7 +168,7 @@ export class Pawn {
     //#region Pawn Update
     public _PawnUpdate: PawnEvent<PawnEventData<Pawn>> = new PawnEvent<PawnEventData<Pawn>>()
 
-    public readonly _OnParentUpdate: PawnEventHandler<PawnEventData<void>> = () => {
+    public readonly _OnParentTransformUpdate: PawnEventHandler<PawnEventData<void>> = () => {
         if (!this.active) {
             return
         }
@@ -177,7 +177,7 @@ export class Pawn {
     //#endregion
 
     //#region Pawn Destroy
-    public readonly _OnParentDestroyed: PawnEventHandler = () => {
+    public readonly _OnParentTransformDestroyed: PawnEventHandler = () => {
         this.Destroy()
     }
 
