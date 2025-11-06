@@ -35,11 +35,9 @@ export class Pawn {
         PawnModuleClass: PawnModuleConstructor<Module, Data>,
         moduleData?: Data,
     ): Module {
-        if (PawnModuleClass.UNIQUE) {
-            if (this.HasModule(PawnModuleClass)) {
-                console.error(`"${this.name}" Pawn already has an unique "${PawnModuleClass.name}" Module`)
-                return undefined!
-            }
+        if (this.CheckModuleUnique(PawnModuleClass)) {
+            console.error(`Can't add an unique "${PawnModuleClass.name}" Module to the "${this.name}" Pawn`)
+            return undefined!
         }
 
         moduleData ??= {} as Data
@@ -47,6 +45,36 @@ export class Pawn {
         module._Destroyed.Subscribe(this._OnModuleDestroyed)
         this.modules.push(module)
         return module
+    }
+
+    private GetUniqueConstructorOrigin(TestedConstructor: PawnModuleConstructor<any, any>): PawnModuleConstructor {
+        if (!TestedConstructor.UNIQUE) { return undefined! }
+        while (true) {
+            const ParentConstructor = Object.getPrototypeOf(TestedConstructor)
+            if (!ParentConstructor.UNIQUE) {
+                break
+            }
+            TestedConstructor = ParentConstructor
+        }
+        return TestedConstructor
+    }
+
+    private CheckModuleUnique<Module extends PawnModule<Data>, Data extends PawnModuleData = PawnModuleData>(
+        TestedConstructor: PawnModuleConstructor<Module, Data>,
+    ): boolean {
+        const testedOrigin = this.GetUniqueConstructorOrigin(TestedConstructor)
+        if (!testedOrigin) { return false }
+
+        for (let module of this.modules) {
+            const moduleConstructor = module.constructor as PawnModuleConstructor
+            const moduleConstructorOrigin = this.GetUniqueConstructorOrigin(moduleConstructor)
+            if (!moduleConstructorOrigin) { continue }
+            if(testedOrigin === moduleConstructorOrigin) {
+                console.warn(`"${TestedConstructor.name}" Module has the same unique root as the current "${moduleConstructor.name}" Module`)
+                return true
+            }
+        }
+        return false
     }
 
     public HasModule<Module extends PawnModule<Data>, Data extends PawnModuleData = PawnModuleData>(
