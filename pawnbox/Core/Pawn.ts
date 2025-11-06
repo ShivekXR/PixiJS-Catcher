@@ -35,7 +35,7 @@ export class Pawn {
         PawnModuleClass: PawnModuleConstructor<Module, Data>,
         moduleData?: Data,
     ): Module {
-        if (this.CheckModuleUnique(PawnModuleClass)) {
+        if (this.CheckModuleUniqueness(PawnModuleClass)) {
             console.error(`Can't add an unique "${PawnModuleClass.name}" Module to the "${this.name}" Pawn`)
             return undefined!
         }
@@ -45,36 +45,6 @@ export class Pawn {
         module._Destroyed.Subscribe(this._OnModuleDestroyed)
         this.modules.push(module)
         return module
-    }
-
-    private GetUniqueConstructorOrigin(TestedConstructor: PawnModuleConstructor<any, any>): PawnModuleConstructor {
-        if (!TestedConstructor.UNIQUE) { return undefined! }
-        while (true) {
-            const ParentConstructor = Object.getPrototypeOf(TestedConstructor)
-            if (!ParentConstructor.UNIQUE) {
-                break
-            }
-            TestedConstructor = ParentConstructor
-        }
-        return TestedConstructor
-    }
-
-    private CheckModuleUnique<Module extends PawnModule<Data>, Data extends PawnModuleData = PawnModuleData>(
-        TestedConstructor: PawnModuleConstructor<Module, Data>,
-    ): boolean {
-        const testedOrigin = this.GetUniqueConstructorOrigin(TestedConstructor)
-        if (!testedOrigin) { return false }
-
-        for (let module of this.modules) {
-            const moduleConstructor = module.constructor as PawnModuleConstructor
-            const moduleConstructorOrigin = this.GetUniqueConstructorOrigin(moduleConstructor)
-            if (!moduleConstructorOrigin) { continue }
-            if(testedOrigin === moduleConstructorOrigin) {
-                console.warn(`"${TestedConstructor.name}" Module has the same unique root as the current "${moduleConstructor.name}" Module`)
-                return true
-            }
-        }
-        return false
     }
 
     public HasModule<Module extends PawnModule<Data>, Data extends PawnModuleData = PawnModuleData>(
@@ -117,6 +87,38 @@ export class Pawn {
 
     public GetAllModules(): Array<PawnModule> {
         return this.modules
+    }
+    //#endregion
+
+    //#region Module Uniqueness
+    private CheckModuleUniqueness<Module extends PawnModule<Data>, Data extends PawnModuleData = PawnModuleData>(
+        TestedConstructor: PawnModuleConstructor<Module, Data>,
+    ): boolean {
+        const TestedOriginConstructor: PawnModuleConstructor = this.GetUniqueConstructorOrigin(TestedConstructor)
+        if (!TestedOriginConstructor) { return false }
+
+        for (let module of this.modules) {
+            const ModuleConstructor: PawnModuleConstructor = module.constructor as PawnModuleConstructor
+            const ModuleOriginConstructor: PawnModuleConstructor = this.GetUniqueConstructorOrigin(ModuleConstructor)
+            if (!ModuleOriginConstructor) { continue }
+            if (TestedOriginConstructor === ModuleOriginConstructor) {
+                console.warn(`"${TestedConstructor.name}" Module has the same unique root as the current "${ModuleConstructor.name}" Module`)
+                return true
+            }
+        }
+        return false
+    }
+
+    private GetUniqueConstructorOrigin(TestedConstructor: PawnModuleConstructor<any, any>): PawnModuleConstructor {
+        if (!TestedConstructor.UNIQUE) { return undefined! }
+        while (true) {
+            const ParentConstructor = Object.getPrototypeOf(TestedConstructor)
+            if (!ParentConstructor.UNIQUE) {
+                break
+            }
+            TestedConstructor = ParentConstructor
+        }
+        return TestedConstructor
     }
     //#endregion
 
