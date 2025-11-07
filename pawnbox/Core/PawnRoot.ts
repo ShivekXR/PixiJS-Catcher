@@ -1,4 +1,5 @@
 import { PawnEvent } from "@PawnBox/Core/PawnEvent"
+import { PawnTransformModule } from "@PawnBox/Modules/Main/PawnTransformModule"
 
 import { Container, Ticker } from "pixi.js"
 
@@ -14,6 +15,25 @@ export class PawnRoot {
         this.enabled = enabled ?? true
         Ticker.shared.add(this.OnTick)
         PawnRoot.root = this
+    }
+    //#endregion
+
+    //#region Parenting
+    private _children: Set<PawnTransformModule> = new Set<PawnTransformModule>()
+    public get children(): PawnTransformModule[] {
+        return [...this._children]
+    }
+
+    public AddChild(child: PawnTransformModule): void {
+        child.SetParent(this)
+    }
+
+    public _AddChild(child: PawnTransformModule): void {
+        this._children.add(child)
+    }
+
+    public _RemoveChild(child: PawnTransformModule): void {
+        this._children.delete(child)
     }
     //#endregion
 

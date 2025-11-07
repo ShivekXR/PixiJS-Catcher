@@ -25,21 +25,28 @@ export class PawnTransformModule extends PawnModule<PawnData> {
     }
     //#endregion
 
-    //#region Hierarchy
+    //#region Parenting
     private _parent: PawnTransformModule | PawnRoot
     public get parent(): PawnTransformModule | PawnRoot { return this._parent }
 
+    private _children: Set<PawnTransformModule> = new Set<PawnTransformModule>()
+    public get children(): PawnTransformModule[] {
+        return [...this._children]
+    }
+
     public SetParent(newParent: PawnTransformModule | PawnRoot): void {
+        if (newParent == this.parent) { return }
         this._Deparent()
         this._SetParent(newParent)
     }
 
-    private _SetParent(newParent: PawnTransformModule | PawnRoot) {
+    private _SetParent(newParent: PawnTransformModule | PawnRoot): void {
         this._parent = newParent
         this.parent._Enabled.Subscribe(this.pawn._OnParentTransformEnabled)
         this.parent._Disabled.Subscribe(this.pawn._OnParentTransformDisabled)
         this.parent._Update.Subscribe(this.pawn._OnParentTransformUpdate)
         this.parent._Destroyed.Subscribe(this.pawn._OnParentTransformDestroyed)
+        this.parent._AddChild(this)
 
         if (this.parent instanceof PawnTransformModule) {
             this.container.setParent(this.parent.transform.container)
@@ -48,11 +55,24 @@ export class PawnTransformModule extends PawnModule<PawnData> {
         }
     }
 
-    private _Deparent() {
-        this.parent._Enabled.Subscribe(this.pawn._OnParentTransformEnabled)
-        this.parent._Disabled.Subscribe(this.pawn._OnParentTransformDisabled)
+    private _Deparent(): void {
+        this.parent._Enabled.Unsubscribe(this.pawn._OnParentTransformEnabled)
+        this.parent._Disabled.Unsubscribe(this.pawn._OnParentTransformDisabled)
         this.parent._Update.Unsubscribe(this.pawn._OnParentTransformUpdate)
         this.parent._Destroyed.Unsubscribe(this.pawn._OnParentTransformDestroyed)
+        this.parent._RemoveChild(this)
+    }
+
+    public AddChild(child: PawnTransformModule): void {
+        child.SetParent(this)
+    }
+
+    public _AddChild(child: PawnTransformModule): void {
+        this._children.add(child)
+    }
+
+    public _RemoveChild(child: PawnTransformModule): void {
+        this._children.delete(child)
     }
     //#endregion
 
